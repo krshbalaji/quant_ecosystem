@@ -1,0 +1,60 @@
+Build a complete production-grade Fyers trading automation engine in Python.
+
+Requirements:
+
+Capital small (₹8k–₹10k), so system must prioritize:
+- low frequency
+- high probability
+- minimal brokerage impact
+
+System features:
+
+1. Pre-market scanner (8:45 AM)
+   - scan Nifty, BankNifty, top volume stocks
+   - EMA ribbon bullish filter
+   - gap + volume filter
+   - select max 5 instruments
+
+2. Strategy modules
+   - 5m ORB breakout
+   - VWAP pullback
+   - Donchian breakout
+   - Swing BB + EMA (daily)
+   - each strategy independent class
+
+3. Strategy evaluator
+   - evaluate last 20–30 days performance
+   - pick best performing strategy per instrument
+   - auto select
+
+4. Risk manager
+   - max 1 intraday trade/day
+   - max 1 swing trade/day
+   - fixed SL
+   - target 1.5R
+   - stop trading after daily loss
+
+5. Fyers API integration
+   - place orders automatically
+   - bracket orders
+   - auto SL/TP
+   - webhook compatible
+
+6. Logging
+   - trade logs
+   - P&L
+   - daily report
+
+7. Clean modular structure
+   - scanners/
+   - strategies/
+   - core/
+   - engine/
+
+8. Provide:
+   - all Python files
+   - requirements.txt
+   - config.yaml
+   - setup steps
+
+Code must be beginner friendly, commented, production safe, and error handled.

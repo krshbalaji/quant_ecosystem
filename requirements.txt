@@ -1,0 +1,6 @@
+fyers-apiv3
+pandas
+numpy
+pyyaml
+requests
+schedule

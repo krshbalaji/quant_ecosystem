@@ -1,0 +1,32 @@
+fyers_engine/
+│
+├── config/
+│   └── settings.yaml
+│
+├── core/
+│   ├── broker_fyers.py
+│   ├── risk_manager.py
+│   ├── logger.py
+│
+├── scanners/
+│   ├── ema_ribbon_scan.py
+│   ├── volume_scan.py
+│   └── premarket_scanner.py
+│
+├── strategies/
+│   ├── orb_strategy.py
+│   ├── vwap_pullback.py
+│   ├── donchian_strategy.py
+│   ├── swing_bb_ema.py
+│
+├── engine/
+│   ├── backtester.py
+│   ├── strategy_selector.py
+│   ├── intraday_runner.py
+│   ├── swing_runner.py
+│
+├── notifications/
+│   └── telegram.py
+│
+├── main.py
+└── requirements.txt

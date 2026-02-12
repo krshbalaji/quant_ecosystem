@@ -1,0 +1,19 @@
+capital: 8000
+
+risk:
+  risk_per_trade_pct: 2
+  max_daily_loss_pct: 3
+  max_intraday_trades: 1
+
+symbols:
+  - NSE:NIFTYBANK-INDEX
+  - NSE:NIFTY50-INDEX
+
+broker:
+  webhook_url: "https://your-ngrok-or-server-url/webhook"
+
+telegram:
+  token: ""
+  chat_id: ""
+
+
