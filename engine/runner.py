@@ -14,6 +14,10 @@ from engine.fyers_broker import FyersBroker
 from engine.telegram_notifier import TelegramNotifier
 from engine.portfolio import Portfolio
 from engine.trade_journal import TradeJournal
+from engine.optimizer import Optimizer
+from engine.backtester import Backtester
+
+self.optimizer = Optimizer(None, Backtester())
 
 
 # ======================================
