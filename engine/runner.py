@@ -74,7 +74,7 @@ class Engine:
                 # --------------------------------
                 # Update dashboard LIVE
                 # --------------------------------
-                update_data(self.pnl, self.trade_count, self.risk.capital)
+                update_data(self.pnl, self.trade_count, self.risk.capital, self.positions, self.orders)
 
                 print(f"📊 PnL: {self.pnl} | Trades: {self.trade_count}")
 
