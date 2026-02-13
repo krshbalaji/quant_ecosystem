@@ -1,28 +1,28 @@
 import csv
 import os
-import datetime
+from datetime import datetime
 
 
 class TradeJournal:
 
     FILE = "journal/trades.csv"
 
-    def log(self, symbol, side, qty, price, capital):
+    def log(self, symbol, side, qty, price, pnl=0):
 
-        new = not os.path.exists(self.FILE)
+        exists = os.path.exists(self.FILE)
 
         with open(self.FILE, "a", newline="") as f:
 
-            w = csv.writer(f)
+            writer = csv.writer(f)
 
-            if new:
-                w.writerow(["time","symbol","side","qty","price","capital"])
+            if not exists:
+                writer.writerow(["time","symbol","side","qty","price","pnl"])
 
-            w.writerow([
-                datetime.datetime.now(),
+            writer.writerow([
+                datetime.now(),
                 symbol,
                 side,
                 qty,
                 price,
-                capital
+                pnl
             ])

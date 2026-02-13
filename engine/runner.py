@@ -1,117 +1,91 @@
-# ======================================
-# MASTER TRADING ENGINE (FINAL VERSION)
-# ======================================
-
 import time
-import datetime
-import yaml
 import os
-
-from core.logger import log
-from core.risk_manager import RiskManager
+from datetime import datetime
 
 from engine.fyers_broker import FyersBroker
 from engine.telegram_notifier import TelegramNotifier
 from engine.portfolio import Portfolio
-from engine.trade_journal import TradeJournal
-from engine.optimizer import Optimizer
-from engine.backtester import Backtester
-
-self.optimizer = Optimizer(None, Backtester())
+from core.risk_manager import RiskManager
+from dashboard.web_dashboard import update_data
 
 
-# ======================================
 class Engine:
 
     def __init__(self):
 
-        BASE = os.path.dirname(os.path.dirname(__file__))
-        cfg = yaml.safe_load(open(os.path.join(BASE, "config", "settings.yaml")))
+        print("🚀 Initializing engine...")
 
-        # ---------------------------------
-        # Core modules
-        # ---------------------------------
-        self.broker = FyersBroker(cfg["broker"]["webhook_url"])
+        # =========================
+        # Broker
+        # =========================
+        self.broker = FyersBroker(
+            os.getenv("FYERS_CLIENT_ID"),
+            os.getenv("FYERS_ACCESS_TOKEN")
+        )
+
+        # =========================
+        # Telegram
+        # =========================
         self.tg = TelegramNotifier()
+
+        # =========================
+        # Portfolio + Risk
+        # =========================
         self.portfolio = Portfolio()
-        self.journal = TradeJournal()
+        self.risk = RiskManager(capital=100000)
 
-        self.risk = RiskManager(cfg["capital"]["initial"])
+        self.pnl = 0
+        self.trade_count = 0
 
-        self.running = True
+        print("✅ Broker + Telegram + Portfolio ready")
 
-        log("Engine initialized")
-
-    # ======================================
-    # MARKET HOURS CONTROL
-    # ======================================
+    # =============================
+    # Market hours check
+    # =============================
     def market_open(self):
+        now = datetime.now().time()
+        return now >= datetime.strptime("09:15", "%H:%M").time() and \
+               now <= datetime.strptime("15:30", "%H:%M").time()
 
-        now = datetime.datetime.now().time()
-        return now >= datetime.time(9, 15) and now <= datetime.time(15, 30)
-
-    # ======================================
-    # PLACE ORDER WRAPPER
-    # ======================================
-    def place_trade(self, side, symbol, qty, price, sl=None, tp=None):
-
-        if not self.risk.allow_trade():
-            log("Risk manager blocked trade")
-            return
-
-        self.broker.place_order(side, symbol, qty, price, sl, tp)
-
-        self.tg.send(f"{side} {symbol} @ {price} qty:{qty}")
-
-        self.journal.log(symbol, side, qty, price, self.portfolio.capital)
-
-    # ======================================
-    # YOUR STRATEGIES HERE
-    # ======================================
-    def execute_strategies(self):
-
-        log("Running strategies...")
-
-        # ======================================
-        # SAMPLE DEMO SIGNAL
-        # replace with real strategy signals
-        # ======================================
-
-        symbol = "NSE_FO:BANKNIFTY-I"
-        price = 50000
-        qty = 1
-
-        # example condition
-        if datetime.datetime.now().second % 120 == 0:
-            self.place_trade("BUY", symbol, qty, price)
-
-    # ======================================
+    # =============================
     # MAIN LOOP
-    # ======================================
+    # =============================
     def run(self):
 
-        log("Engine loop started")
+        print("🚀 Engine loop started")
 
-        while self.running:
+        while True:
+
+            if not self.market_open():
+                print("⏰ Market closed. Sleeping 60s")
+                time.sleep(60)
+                continue
 
             try:
 
-                if not self.market_open():
-                    log("Market closed. Sleeping 60s")
-                    time.sleep(60)
-                    continue
+                # --------------------------------
+                # Pull trade history from Fyers
+                # --------------------------------
+                trades = self.broker.get_trade_history()
 
-                self.execute_strategies()
+                self.pnl = sum([t.get("pnl", 0) for t in trades])
+                self.trade_count = len(trades)
 
-                time.sleep(5)
+                # --------------------------------
+                # Update dashboard LIVE
+                # --------------------------------
+                update_data(self.pnl, self.trade_count, self.risk.capital)
+
+                print(f"📊 PnL: {self.pnl} | Trades: {self.trade_count}")
 
             except Exception as e:
+                print("⚠ Engine error:", e)
 
-                log(f"ERROR: {e}")
-                self.tg.send(f"Engine crash: {e}")
-                time.sleep(5)
+            time.sleep(5)
 
 
+# ======================================
+# STARTER
 # ======================================
 def start():
     Engine().run()

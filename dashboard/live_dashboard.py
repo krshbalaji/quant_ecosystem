@@ -3,26 +3,23 @@ import pandas as pd
 import time
 
 
-def run():
+class LiveDashboard:
 
-    while True:
+    def run(self):
 
-        try:
-            df = pd.read_csv("journal/trades.csv")
+        while True:
 
-            plt.clf()
+            try:
+                df = pd.read_csv("journal/trades.csv")
 
-            plt.plot(df["capital"])
+                pnl = df["pnl"].cumsum()
 
-            plt.title("Equity Curve")
+                plt.clf()
+                plt.plot(pnl)
+                plt.title("Live Equity Curve")
+                plt.pause(2)
 
-            plt.pause(1)
+            except:
+                pass
 
-        except:
-            pass
-
-        time.sleep(5)
-
-
-if __name__ == "__main__":
-    run()
+            time.sleep(5)

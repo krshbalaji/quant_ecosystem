@@ -1,6 +1,9 @@
-fyers-apiv3
+flask
+psutil
 pandas
 numpy
+matplotlib
+schedule
 pyyaml
 requests
-schedule
+python-dotenv

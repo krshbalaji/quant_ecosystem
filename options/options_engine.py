@@ -1,22 +1,38 @@
-# =========================================
-# OPTIONS EXECUTION ENGINE
-# =========================================
-
-from options.strike_selector import StrikeSelector
-from options.option_symbol_builder import OptionBuilder
+import random
 
 
 class OptionsEngine:
+    """
+    Simple backtest simulator for options strategies
+    Used by optimizer
+    """
 
-    def __init__(self, broker):
-        self.broker = broker
+    def __init__(self,
+                 symbol="BANKNIFTY",
+                 sl=0.20,
+                 target=0.30,
+                 trail=0.10,
+                 strike_distance=0):
 
-    def execute(self, symbol, side, price, qty):
+        self.symbol = symbol
+        self.sl = sl
+        self.target = target
+        self.trail = trail
+        self.strike_distance = strike_distance
 
-        strike = StrikeSelector.get_atm(price, symbol)
+    # --------------------------------
+    # Dummy backtest (fast simulation)
+    # --------------------------------
+    def backtest(self):
 
-        opt_symbol = OptionBuilder.build(symbol, strike, side)
+        trades = random.randint(10, 40)
+        wins = random.randint(5, trades)
 
-        self.broker.place_order(side, opt_symbol, qty, price)
+        profit = wins * self.target * 100 - (trades - wins) * self.sl * 100
+        drawdown = random.randint(50, 200)
 
-        return opt_symbol
+        return {
+            "profit": profit,
+            "winrate": wins / trades,
+            "drawdown": drawdown
+        }

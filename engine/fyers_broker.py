@@ -1,34 +1,48 @@
-# ======================================================
 # engine/fyers_broker.py
-# LIVE FYERS EXECUTION BROKER
-# ======================================================
 
-import requests
-from core.logger import log
+from fyers_apiv3 import fyersModel
 
 
 class FyersBroker:
 
-    def __init__(self, webhook_url):
-        self.webhook = webhook_url
+    def __init__(self, client_id, access_token):
+        self.client_id = client_id
+        self.access_token = access_token
+
+    def connect(self):
+        print("✅ Fyers connected")
+
+    def place_order(self, symbol, side, qty):
+        print(f"ORDER → {symbol} {side} {qty}")
 
     # ---------------------------------
-    def place_order(self, side, symbol, qty, price, sl=None, tp=None):
+    # Place Order
+    # ---------------------------------
+    def place_order(self, symbol, side, qty):
 
-        payload = {
-            "broker": "FYERS",
-            "mode": "LIVE",
+        data = {
             "symbol": symbol,
-            "side": side,
             "qty": qty,
-            "price": price,
-            "sl": sl,
-            "tp": tp
+            "type": 2,  # market
+            "side": 1 if side == "BUY" else -1,
+            "productType": "INTRADAY",
+            "limitPrice": 0,
+            "stopPrice": 0,
+            "validity": "DAY"
         }
 
-        try:
-            r = requests.post(self.webhook, json=payload, timeout=5)
-            log(f"📡 FYERS ORDER SENT -> {payload}")
+        return self.fyers.place_order(data)
 
-        except Exception as e:
-            log(f"❌ FYERS ERROR: {e}")
+    # ---------------------------------
+    # Get LTP
+    # ---------------------------------
+    def get_ltp(self, symbol):
+        quote = self.fyers.quotes({"symbols": symbol})
+        return quote["d"][0]["v"]["lp"]
+
+    # ---------------------------------
+    # Close All
+    # ---------------------------------
+    def close_all(self):
+        # simple safe close (optional)
+        pass

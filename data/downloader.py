@@ -13,19 +13,24 @@ class HistoricalDownloader:
         end = dt.datetime.now()
         start = end - dt.timedelta(days=days)
 
-        data = {
+        res = self.fyers.history({
             "symbol": symbol,
             "resolution": timeframe,
             "date_format": "1",
             "range_from": start.strftime("%Y-%m-%d"),
             "range_to": end.strftime("%Y-%m-%d"),
             "cont_flag": "1"
-        }
+        })
 
-        res = self.fyers.history(data)
+        # safety check
+        if "candles" not in res:
+            print("⚠ No candles returned:", res)
+            return pd.DataFrame()
 
-        df = pd.DataFrame(res["candles"],
-                          columns=["ts","open","high","low","close","volume"])
+        df = pd.DataFrame(
+            res["candles"],
+            columns=["ts", "open", "high", "low", "close", "vol"]
+        )
 
         df["time"] = pd.to_datetime(df["ts"], unit="s")
         df.set_index("time", inplace=True)
