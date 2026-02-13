@@ -46,3 +46,25 @@ class FyersBroker:
     def close_all(self):
         # simple safe close (optional)
         pass
+    def get_trade_history(self):
+        """
+        Fetch completed trades from Fyers
+        """
+        try:
+            res = self.fyers.tradebook()
+
+            trades = []
+            for t in res.get("tradeBook", []):
+                trades.append({
+                    "symbol": t["symbol"],
+                    "side": t["side"],
+                    "qty": t["qty"],
+                    "price": t["tradePrice"],
+                    "pnl": t.get("realizedProfit", 0)
+                })
+
+            return trades
+
+        except Exception as e:
+            print("History fetch failed:", e)
+            return []

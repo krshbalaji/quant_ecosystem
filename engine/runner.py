@@ -27,6 +27,7 @@ class Engine:
         # Telegram
         # =========================
         self.tg = TelegramNotifier()
+        self.tg.send(f"PnL: ₹{self.pnl} | Trades: {self.trade_count}")
 
         # =========================
         # Portfolio + Risk
