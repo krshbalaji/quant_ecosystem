@@ -1,0 +1,1 @@
+class ModeEngine:    def __init__(self):        self.current_mode = "BALANCED"    def decide(self, health_score):        if health_score >= 70:            self.current_mode = "GROWTH"        elif health_score >= 40:            self.current_mode = "BALANCED"        else:            self.current_mode = "DEFENSE"        return self.current_mode

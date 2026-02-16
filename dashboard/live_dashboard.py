@@ -23,3 +23,20 @@ class LiveDashboard:
                 pass
 
             time.sleep(5)
+
+    def get_options_data(broker):
+
+        positions = broker.get_positions()
+
+        options = []
+
+        for p in positions:
+            if "CE" in p["symbol"] or "PE" in p["symbol"]:
+                options.append({
+                    "symbol": p["symbol"],
+                    "type": "CE" if "CE" in p["symbol"] else "PE",
+                    "qty": p["qty"],
+                    "pnl": p["pnl"]
+                })
+
+        return options

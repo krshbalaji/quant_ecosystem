@@ -1,0 +1,15 @@
+[
+  {
+    "idea_id": 1,
+    "title": "Strategy Decay Detector",
+    "author": "Partner",
+    "category": "Risk",
+    "impact_score": 9,
+    "complexity_score": 6,
+    "stability_score": 3,
+    "status": "Proposed",
+    "success_rating": null,
+    "implemented_date": null,
+    "live_performance_delta": null
+  }
+]

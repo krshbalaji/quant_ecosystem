@@ -12,6 +12,9 @@ class TelegramNotifier:
 
         self.token = token
         self.chat_id = chat_id
+    
+    def notify(self, msg):
+        self.send_message(msg)
 
     def send(self, msg):
         try:

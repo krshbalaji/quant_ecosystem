@@ -1,23 +1,21 @@
-from fyers_apiv3 import fyersModel
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 class FyersBroker:
 
-    def __init__(self, client_id, token):
-        self.fyers = fyersModel.FyersModel(
-            client_id=client_id,
-            token=token,
-            log_path=""
-        )
+    def __init__(self):
 
-    def place_market(self, symbol, qty, side):
+        self.client_id = os.getenv("FYERS_CLIENT_ID")
+        self.access_token = os.getenv("FYERS_ACCESS_TOKEN")
 
-        data = {
-            "symbol": symbol,
-            "qty": qty,
-            "type": 2,
-            "side": side,
-            "productType": "INTRADAY",
-            "validity": "DAY"
+        if not self.client_id or not self.access_token:
+            raise Exception("FYERS credentials missing in .env")
+
+        self.headers = {
+            "Authorization": f"{self.client_id}:{self.access_token}",
+            "Content-Type": "application/json"
         }
 
-        return self.fyers.place_order(data)
+        print("FYERS Broker Connected Securely")

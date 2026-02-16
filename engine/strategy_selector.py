@@ -1,12 +1,26 @@
-def best_strategy(strategies, df):
+from core.performance_tracker import PerformanceTracker
 
-    best = None
-    best_score = 0
+self.tracker = PerformanceTracker()
 
-    for s in strategies:
-        score = s["backtest"](df)
-        if score > best_score:
-            best_score = score
-            best = s
+def select_best(self, available_strategies):
 
-    return best
+    scored = []
+
+    for s in available_strategies:
+
+        score = self.tracker.get_score(s.name)
+
+        scored.append((s, score))
+
+    scored.sort(key=lambda x: x[1], reverse=True)
+
+    return scored[0][0]
+
+
+def choose_best_strategy(regime, ml_confidence):
+    if regime == "trend" and ml_confidence > 0.6:
+        return "Breakout"
+    elif regime == "sideways":
+        return "MeanReversion"
+    else:
+        return "OptionsPremium"

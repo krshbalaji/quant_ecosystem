@@ -1,0 +1,26 @@
+[Idea 1: Strategy Decay Detector
+
+Detect when a strategy’s edge degrades over last 30 trades.
+
+Category: Risk
+Impact: 9
+Complexity: 6
+Stability: 3]
+
+[Idea 2: Capital Efficiency Tracker
+
+Track profit per capital locked per strategy.
+
+Category: Analytics
+Impact: 8
+Complexity: 5
+Stability: 3]
+
+[Idea 3: Correlation Risk Cap
+
+Prevent trading 2 highly correlated instruments simultaneously.
+
+Category: Risk
+Impact: 9
+Complexity: 7
+Stability: 3]
