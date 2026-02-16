@@ -1,22 +1,26 @@
 import numpy as np
 
+
 class RegimeDetector:
 
-    def detect(self, prices):
+    def detect(self, prices=None):
 
-        if len(prices) < 50:
+        if prices is None or len(prices) < 10:
+
             return "UNKNOWN"
 
-        returns = np.diff(prices)
+        volatility = np.std(prices[-10:])
 
-        volatility = np.std(returns)
-
-        trend = prices[-1] - prices[0]
+        trend = prices[-1] - prices[-10]
 
         if volatility > 2:
+
             return "VOLATILE"
 
-        if abs(trend) > volatility * 5:
+        elif abs(trend) > 1:
+
             return "TRENDING"
 
-        return "RANGING"
+        else:
+
+            return "RANGING"

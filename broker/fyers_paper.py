@@ -1,59 +1,78 @@
-import random
-import time
+"""
+PaperBroker
+Simulates broker execution safely
+Used for PAPER trading mode
+"""
 
-class FyersPaperBroker:
+import datetime
+
+
+class PaperBroker:
+
     def __init__(self):
-        self.orders = {}
+
+        self.balance = 8000  # initial paper capital
         self.positions = {}
-        self.order_id_counter = 1
 
-    def place_order(self, symbol, side, qty, price=None):
-        order_id = f"PAPER_{self.order_id_counter}"
-        self.order_id_counter += 1
+        print("PaperBroker initialized with balance:", self.balance)
 
-        fill_price = price if price else self._get_market_price(symbol)
+
+    def get_available_funds(self):
+
+        return self.balance
+
+
+    def place_order(self, symbol, side, qty, price):
+
+        value = qty * price
+
+        if side == "BUY":
+
+            if value > self.balance:
+
+                print("PaperBroker: Insufficient funds")
+
+                return None
+
+            self.balance -= value
+
+            self.positions[symbol] = {
+
+                "qty": qty,
+                "price": price,
+                "side": side,
+                "time": str(datetime.datetime.now())
+            }
+
+        elif side == "SELL":
+
+            self.balance += value
+
+            if symbol in self.positions:
+
+                del self.positions[symbol]
+
 
         order = {
-            "order_id": order_id,
+
             "symbol": symbol,
             "side": side,
             "qty": qty,
-            "price": fill_price,
+            "price": price,
             "status": "FILLED",
-            "timestamp": time.time()
+            "timestamp": str(datetime.datetime.now())
         }
 
-        self.orders[order_id] = order
-        self._update_position(symbol, side, qty, fill_price)
+        print("PaperBroker Order:", order)
 
         return order
 
-    def _get_market_price(self, symbol):
-        return round(100 + random.uniform(-5, 5), 2)
-
-    def _update_position(self, symbol, side, qty, price):
-
-        if symbol not in self.positions:
-            self.positions[symbol] = {
-                "qty": 0,
-                "avg_price": 0
-            }
-
-        pos = self.positions[symbol]
-
-        if side == "BUY":
-            new_qty = pos["qty"] + qty
-            pos["avg_price"] = (
-                (pos["qty"] * pos["avg_price"] + qty * price)
-                / new_qty
-            )
-            pos["qty"] = new_qty
-
-        elif side == "SELL":
-            pos["qty"] -= qty
 
     def get_positions(self):
+
         return self.positions
 
-    def get_orders(self):
-        return self.orders
+
+    def get_balance(self):
+
+        return self.balance

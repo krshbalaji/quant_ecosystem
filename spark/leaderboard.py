@@ -1,53 +1,47 @@
-import os
+"""
+Leaderboard Engine
+Ranks strategies by performance
+"""
+
 import json
-from flask import jsonify
-
-VAULT_FILE = "brain/spark_vault.json"
+import os
 
 
-def leaderboard():
-    print("DEBUG: Leaderboard called")
+class Leaderboard:
 
-    if not os.path.exists(VAULT_FILE):
-        return jsonify({"error": "vault file not found"}), 404
+    def __init__(self):
 
-    with open(VAULT_FILE, "r") as f:
-        data = json.load(f)
+        self.file = "data/strategy_performance.json"
 
-    print("DEBUG: Data loaded:", data)
+        os.makedirs("data", exist_ok=True)
 
-    # Ensure list format
-    if isinstance(data, dict):
-        data = [data]
 
-    leaderboard = {}
+    def update(self):
 
-    for idea in data:
+        try:
 
-        if not isinstance(idea, dict):
-            continue
+            data = self._load()
 
-        contributor = idea.get("author", "Unknown")
+            ranked = sorted(
+                data.items(),
+                key=lambda x: x[1].get("pnl", 0),
+                reverse=True
+            )
 
-        stability = idea.get("stability_score", 0)
-        impact = idea.get("impact_score", 0)
-        success = idea.get("success_rating") or 0
+            print("Leaderboard:")
 
-        score = (stability * 0.4) + (impact * 0.4) + (success * 0.2)
+            for name, stats in ranked[:10]:
 
-        leaderboard[contributor] = leaderboard.get(contributor, 0) + score
+                print(name, stats.get("pnl", 0))
 
-    sorted_board = sorted(
-        leaderboard.items(),
-        key=lambda x: x[1],
-        reverse=True
-    )
+        except Exception as e:
 
-    result = [
-        {"contributor": name, "score": round(score, 2)}
-        for name, score in sorted_board
-    ]
+            print("Leaderboard error:", e)
 
-    print("DEBUG: Leaderboard result:", result)
 
-    return jsonify(result)
+    def _load(self):
+
+        try:
+            return json.load(open(self.file))
+        except:
+            return {}

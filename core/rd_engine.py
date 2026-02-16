@@ -1,54 +1,86 @@
 import os
 import random
+import importlib
+import time
+
 from core.assimilation_engine import AssimilationEngine
-from core.performance_tracker import PerformanceTracker
+from core.strategy_population_guard import enforce_limit
+
 
 class RDEngine:
 
     def __init__(self):
 
+        self.strategies_folder = "strategies"
+
         self.assimilator = AssimilationEngine()
-        self.tracker = PerformanceTracker()
 
-        self.strategy_dir = "strategies"
+        print("R&D Engine initialized")
 
-    def discover(self):
-
-        # future: connect YouTube, GitHub, etc
-        print("R&D: scanning for new strategy ideas")
-
-    def generate(self):
-
-        base_strategies = os.listdir(self.strategy_dir)
-
-        if not base_strategies:
-            return
-
-        parent = random.choice(base_strategies)
-
-        print(f"R&D: mutating {parent}")
-
-        # simple mutation placeholder
-        content = "RSI BUY SELL strategy"
-
-        self.assimilator.assimilate(content)
-
-    def evaluate(self):
-
-        print("R&D: evaluating strategies")
-
-        for file in os.listdir(self.strategy_dir):
-
-            name = file.replace(".py","")
-
-            score = self.tracker.get_score(name)
-
-            print(name, score)
 
     def evolve(self):
 
-        self.discover()
+        print("R&D: scanning for new strategy ideas")
 
-        self.generate()
+        strategies = self._get_strategies()
 
-        self.evaluate()
+        if not strategies:
+            return
+
+        parent = random.choice(strategies)
+
+        print(f"R&D: mutating {parent}")
+
+        content = self._load_strategy(parent)
+
+        if not content:
+            return
+
+        new_content = self._mutate(content)
+
+        self.assimilator.assimilate(new_content)
+
+        enforce_limit()
+
+        print("R&D evolution cycle complete")
+
+
+    def _get_strategies(self):
+
+        files = []
+
+        for f in os.listdir(self.strategies_folder):
+
+            if f.endswith(".py") and not f.startswith("__"):
+
+                files.append(f)
+
+        return files
+
+
+    def _load_strategy(self, filename):
+
+        path = os.path.join(self.strategies_folder, filename)
+
+        try:
+
+            with open(path, "r") as f:
+
+                return f.read()
+
+        except:
+
+            return None
+
+
+    def _mutate(self, content):
+
+        lines = content.split("\n")
+
+        if len(lines) > 5:
+
+            idx = random.randint(0, len(lines) - 1)
+
+            lines[idx] = lines[idx]  # safe mutation placeholder
+
+        return "\n".join(lines)

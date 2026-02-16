@@ -15,6 +15,13 @@ class RiskManager:
 
         self.state_file = "data/risk_state.json"
 
+        risk = RiskManager(
+            broker,
+            max_risk_per_trade=0.01,   # 1%
+            max_exposure=0.05,         # 5%
+            max_drawdown=0.05
+        )
+
         os.makedirs("data", exist_ok=True)
 
         if not os.path.exists(self.state_file):

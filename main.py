@@ -14,14 +14,37 @@ from core.rd_engine import RDEngine
 from core.broker_loader import load_broker
 from core.maintenance import run_daily, should_run
 from core.mode_controller import enforce_mode
+from core.system_launcher import SystemLauncher
+from core.mobile_command import init
+
+def main():
+
+    print("Starting Autonomous Ecosystem...")
+
+    broker = load_broker()
+
+    launcher = SystemLauncher(broker)
+
+    launcher.start()
+
+
+if __name__ == "__main__":
+
+    main()
+    
+init()
+
+broker = load_broker()
+
+launcher = SystemLauncher(broker)
+
+launcher.start()
 
 mode = enforce_mode()
 
 if should_run():
 
     run_daily()
-
-broker = load_broker()
 
 rd = RDEngine()
 rd.evolve()
@@ -30,7 +53,7 @@ schedule.every().day.at("07:00").do(run_health_check)
 
 cfg = yaml.safe_load(open("config/settings.yaml"))
 
-risk = RiskManager(cfg["capital"], cfg["risk"]["risk_per_trade_pct"])
+risk = RiskManager(broker)
 
 pm = PortfolioManager(broker, risk)
 

@@ -4,27 +4,30 @@ cd /d D:\AI_Projects\quant_ecosystem
 
 call .venv\Scripts\activate
 
-echo Syncing GitHub...
-
-git pull origin main
-
-echo Starting system...
-
-python main.py
-
-echo Pushing updates...
-
-git add .
-git commit -m "Auto update"
-git push origin main
-
-pause
 :loop
 
+echo Syncing GitHub...
+git pull origin main
+
+echo Starting Autonomous Ecosystem...
+
 python main.py
 
-echo Restarting after crash...
+echo System crashed. Restarting in 10 seconds...
 
-timeout /t 5
+timeout /t 10
 
 goto loop
+
+echo Uploading brain to cloud...
+
+git add data/global_brain.pt
+git add data/global_brain_backup.pt
+
+git commit -m "Automated brain checkpoint"
+
+git push
+
+echo Complete.
+pause
+

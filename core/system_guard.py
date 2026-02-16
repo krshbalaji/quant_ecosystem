@@ -1,25 +1,30 @@
-import json
-from datetime import datetime, timedelta
+import time
 
 
 class SystemGuard:
 
-    def allow_live(self):
+    def __init__(self):
 
-        config = json.load(open("config/system_mode.json"))
+        self.last_check = time.time()
 
-        start = datetime.fromisoformat(config["start_date"])
 
-        moratorium = timedelta(weeks=config["moratorium_weeks"])
+    def alive(self):
 
-        if datetime.now() < start + moratorium:
-
-            today = datetime.now().strftime("%A")
-
-            if today != "Wednesday":
-
-                print("Moratorium active: Only PAPER allowed")
-
-                return False
+        # Always return True unless extended later
+        self.last_check = time.time()
 
         return True
+
+
+    def heartbeat(self):
+
+        self.last_check = time.time()
+
+
+    def status(self):
+
+        return {
+
+            "alive": True,
+            "last_check": self.last_check
+        }

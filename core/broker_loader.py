@@ -1,22 +1,46 @@
 import json
-from core.brokers.paper_broker import PaperBroker
-from core.brokers.fyers_broker import FyersBroker
+
+from broker.fyers_paper import PaperBroker
+from core.fyers_auth import FyersBroker
+
+from core.system_guard import SystemGuard
+from core.live_control_guard import allowed as live_allowed
+from core.autonomous_live import allow as autonomous_allow
 
 
 def load_broker():
 
-    from core.system_guard import SystemGuard
-
     guard = SystemGuard()
 
-    if mode == "LIVE" and guard.allow_live():
+    try:
+        config = json.load(open("config/trading_mode.json"))
+        mode = config.get("mode", "PAPER").upper()
+    except:
+        mode = "PAPER"
 
-        print("LIVE mode enabled")
+    # Autonomous LIVE override after moratorium
+    if autonomous_allow():
 
-        return FyersBroker()
+        print("MetaController: Autonomous LIVE enabled")
 
-    else:
+        try:
+            return FyersBroker()
+        except:
+            print("LIVE broker failed → fallback PAPER")
+            return PaperBroker()
 
-        print("PAPER mode enabled")
+    # Manual LIVE mode with safety checks
+    if mode == "LIVE" and guard.allow_live() and live_allowed():
 
-        return PaperBroker()
+        print("LIVE mode approved")
+
+        try:
+            return FyersBroker()
+        except:
+            print("LIVE broker failed → fallback PAPER")
+            return PaperBroker()
+
+    # Default PAPER mode
+    print("PAPER mode active")
+
+    return PaperBroker()
