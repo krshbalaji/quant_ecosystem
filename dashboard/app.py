@@ -41,53 +41,30 @@ def read_meta_state():
         }
 
 
+app = Flask(__name__)
+
 @app.route("/")
-def home():
-
-    return render_template("dashboard.html")
-
-
 @app.route("/dashboard")
 def dashboard():
 
-    state = read_meta_state()
+    data = {
+        "mode": "PAPER",
+        "equity": 8000,
+        "last_strategy": "None",
+        "ai_confidence": 0.0
+    }
 
-    return render_template(
-        "dashboard.html",
-        state=state
-    )
+    return render_template("dashboard.html", data=data)
 
 
 @app.route("/leaderboard")
 def leaderboard():
-
-    strategies = []
-
-    if os.path.exists("strategies"):
-
-        strategies = sorted(os.listdir("strategies"))
-
-    return render_template(
-        "leaderboard.html",
-        strategies=strategies
-    )
+    return render_template("leaderboard.html", data=[])
 
 
 @app.route("/sparks")
 def sparks():
-
-    sparks = []
-
-    if os.path.exists("strategies"):
-
-        for s in sorted(os.listdir("strategies")):
-
-            sparks.append(f"Spark Generated: {s}")
-
-    return render_template(
-        "sparks.html",
-        sparks=sparks
-    )
+    return render_template("sparks.html", data=[])
 
 
 @app.route("/api/state")
