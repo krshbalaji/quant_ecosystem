@@ -154,6 +154,21 @@ class SystemLauncher:
 
             print("Growth optimized allocation:", allocations)
 
+            safe = self.live_controller.evaluate(self.broker)
+
+            if safe:
+
+                print("AI approved LIVE trading")
+
+                self.mode = "LIVE"
+
+            else:
+
+                print("AI keeping system in PAPER mode")
+
+                self.mode = "PAPER"
+
+
     def run_watchdog(self):
 
         while True:
