@@ -16,6 +16,7 @@ from core.auto_deploy import AutoDeploy
 from core.self_healing import SelfHealingEngine
 from core.genetic_engine import GeneticEngine
 from core.population_manager import PopulationManager
+from infra.telegram_service import send_menu
 
 
 class SystemLauncher:
@@ -79,6 +80,7 @@ class SystemLauncher:
 
         self.deploy.sync()
 
+        send_menu()
 
     def run_dashboard(self):
 
