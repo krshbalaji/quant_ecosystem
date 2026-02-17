@@ -19,14 +19,14 @@ last_update_id = None
 
 def listen(broker):
 
-    global last_update_id
-
     print("Telegram listener started")
 
-    send_menu()
+    send_menu()   # ADD THIS LINE
+
+    last_update_id = None
 
     while True:
-
+   
         try:
 
             updates = get_updates(last_update_id)
