@@ -1,2 +1,34 @@
-<h1>Spark Strategy Engine</h1>
-<p>Evolution engine active</p>
+<!DOCTYPE html>
+<html>
+<head>
+<title>Spark Engine</title>
+<style>
+body{
+background:#0b1220;
+color:#00ffa3;
+font-family:Arial;
+padding:20px;
+}
+
+.row{
+background:#121a2f;
+margin:5px;
+padding:10px;
+border-radius:5px;
+}
+</style>
+</head>
+<body>
+
+<h1>Spark Evolution Engine</h1>
+
+{% for s in strategies %}
+
+<div class="row">
+Spark Generated: {{s}}
+</div>
+
+{% endfor %}
+
+</body>
+</html>

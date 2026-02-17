@@ -1,4 +1,67 @@
-<h1>Institutional Dashboard</h1>
-<p>System Online</p>
-<a href="/leaderboard">Leaderboard</a><br>
-<a href="/sparks">Spark Engine</a>
+<!DOCTYPE html>
+<html>
+<head>
+<title>Institutional Quant Dashboard</title>
+
+<style>
+
+body{
+background:#0b1220;
+color:#00ffa3;
+font-family:Arial;
+padding:20px;
+}
+
+.card{
+background:#121a2f;
+padding:20px;
+margin:10px;
+border-radius:10px;
+}
+
+h1{
+color:#00ffa3;
+}
+
+.value{
+font-size:24px;
+color:white;
+}
+
+</style>
+
+</head>
+<body>
+
+<h1>Institutional Quant Ecosystem</h1>
+
+<div class="card">
+Mode: <span class="value">{{data.mode}}</span>
+</div>
+
+<div class="card">
+Equity: ₹ <span class="value">{{data.equity}}</span>
+</div>
+
+<div class="card">
+Market Regime: <span class="value">{{data.regime}}</span>
+</div>
+
+<div class="card">
+Allocation Mode: <span class="value">{{data.allocation}}</span>
+</div>
+
+<div class="card">
+Active Strategies: <span class="value">{{data.strategy_count}}</span>
+</div>
+
+<div class="card">
+Recovery Mode: <span class="value">{{data.recovery}}</span>
+</div>
+
+<div class="card">
+Last Update: <span class="value">{{data.timestamp}}</span>
+</div>
+
+</body>
+</html>

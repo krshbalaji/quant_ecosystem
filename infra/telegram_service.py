@@ -18,8 +18,7 @@ BASE_URL = f"https://api.telegram.org/bot{TOKEN}"
 
 def send_message(text):
     url = f"{BASE_URL}/sendMessage"
-    print("TOKEN USED:", TOKEN)
-    print("CHAT ID USED:",  CHAT_ID)
+   
 
     payload = {
         "chat_id": CHAT_ID,

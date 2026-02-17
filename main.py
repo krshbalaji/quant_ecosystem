@@ -15,8 +15,12 @@ from core.broker_loader import load_broker
 from core.maintenance import run_daily, should_run
 from core.mode_controller import enforce_mode
 from core.system_launcher import SystemLauncher
-
 from core.machine_guard import verify_machine
+from dashboard.app import run_dashboard
+
+import threading
+
+threading.Thread(target=run_dashboard, daemon=True).start()
 
 
 def main():
