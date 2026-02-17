@@ -1,4 +1,8 @@
 @echo off
+cd /d C:\Users\Home PLUS\OneDrive\Desktop\New folder (2)\quant_ecosystem
+python main.py
+pause
+
 
 cd /d D:\AI_Projects\quant_ecosystem
 
