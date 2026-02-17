@@ -13,6 +13,7 @@ from spark.leaderboard import Leaderboard
 from core.telegram_listener import listen
 from dashboard import app as dashboard_app
 from core.auto_deploy import AutoDeploy
+from core.self_healing import SelfHealingEngine
 
 
 class SystemLauncher:
@@ -38,6 +39,8 @@ class SystemLauncher:
         self.running = True
 
         self.deploy = AutoDeploy()
+
+        self.healer = SelfHealingEngine()
 
     def start(self):
 
@@ -138,6 +141,8 @@ class SystemLauncher:
                 self.cloud_backup()
 
                 self.deploy.upload()
+
+                self.healer.heal()
 
             except Exception as e:
 

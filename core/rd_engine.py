@@ -84,3 +84,22 @@ class RDEngine:
             lines[idx] = lines[idx]  # safe mutation placeholder
 
         return "\n".join(lines)
+
+        def run(self):
+
+            print("R&D Engine running evolution cycle")
+
+            try:
+
+                if hasattr(self, "scan"):
+                    self.scan()
+
+                if hasattr(self, "mutate"):
+                    self.mutate()
+
+                if hasattr(self, "evaluate"):
+                    self.evaluate()
+
+            except Exception as e:
+
+                print("R&D Engine error:", e)

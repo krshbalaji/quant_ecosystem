@@ -17,6 +17,8 @@ from core.drl_allocator import DRLAllocator
 from core.lstm_predictor import LSTMPredictor
 from core.lstm_gpu import LSTMGPU
 from core.compounding_engine import CompoundingEngine
+from core.drawdown_recovery import DrawdownRecovery
+
 
 class ExecutionRouter:
 
@@ -102,9 +104,12 @@ class ExecutionRouter:
 
         allocation = allocation_map.get(strategy_name, broker.get_balance() * 0.01)
 
-        qty = compound.allocate(price)
+        qty = recovery.position_size(price)
 
         compound = CompoundingEngine(broker)
+        
+        recovery = DrawdownRecovery(broker)
+
 
     def place_order(self, symbol, side, qty):
 
