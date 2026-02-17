@@ -17,6 +17,8 @@ from core.self_healing import SelfHealingEngine
 from core.genetic_engine import GeneticEngine
 from core.population_manager import PopulationManager
 from infra.telegram_service import send_menu
+from core.confidence_allocator import ConfidenceAllocator
+from core.growth_optimizer import GrowthOptimizer
 
 
 class SystemLauncher:
@@ -48,6 +50,10 @@ class SystemLauncher:
         self.genetic = GeneticEngine()
 
         self.population = PopulationManager()
+
+        self.confidence_allocator = ConfidenceAllocator()
+
+        self.growth = GrowthOptimizer()
 
     def start(self):
 
@@ -82,6 +88,12 @@ class SystemLauncher:
 
         send_menu()
 
+        self.start_dashboard()
+
+        self.start_telegram()
+
+        self.start_core()
+    
     def run_dashboard(self):
 
         try:
@@ -124,6 +136,17 @@ class SystemLauncher:
 
             time.sleep(300)
 
+            allocations = self.confidence_allocator.allocate(
+                self.broker.get_available_funds()
+            )
+
+            print("Confidence allocations:", allocations)
+
+            capital = self.broker.get_available_funds()
+
+            allocations = self.growth.optimize(capital)
+
+            print("Growth optimized allocation:", allocations)
 
     def run_watchdog(self):
 
