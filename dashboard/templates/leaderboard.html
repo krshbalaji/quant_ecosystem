@@ -1,34 +1,29 @@
-<!DOCTYPE html>
-<html>
-<head>
-<title>Strategy Leaderboard</title>
-<style>
-body{
-background:#0b1220;
-color:white;
-font-family:Arial;
-padding:20px;
+<script>
+
+async function loadLeaderboard(){
+
+    const res = await fetch("/api/leaderboard");
+    const data = await res.json();
+
+    const container = document.getElementById("board");
+    container.innerHTML = "";
+
+    data.leaderboard.forEach((s,i)=>{
+
+        container.innerHTML += `
+        <div class="row">
+            #${i+1}
+            ${s.strategy}
+            Score: ${s.score}
+            PnL: ₹${s.pnl}
+            Winrate: ${s.winrate}
+        </div>`;
+    });
+
 }
 
-.row{
-background:#121a2f;
-margin:5px;
-padding:10px;
-border-radius:5px;
-}
-</style>
-</head>
-<body>
+setInterval(loadLeaderboard, 2000);
 
-<h1>Strategy Leaderboard</h1>
+</script>
 
-{% for s in strategies %}
-
-<div class="row">
-{{loop.index}} — {{s}}
-</div>
-
-{% endfor %}
-
-</body>
-</html>
+<div id="board"></div>

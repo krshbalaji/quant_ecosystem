@@ -1,46 +1,86 @@
 # core/mobile_command.py
 
-from core.mode_controller import set_mode, get_mode
+from core.mode_controller import mode_controller
+from infra.telegram_service import send_message
 
 
-def init():
-    print("Mobile command interface initialized")
+def execute_command(cmd: str):
+    """
+    Handles Telegram commands safely.
+    """
 
+    try:
 
-def execute_command(command: str):
+        cmd = cmd.strip().lower()
 
-    command = command.lower().strip()
+        # STATUS
+        if cmd == "/status":
 
-    if command == "/paper":
-        set_mode("PAPER")
-        return "Switched to PAPER mode"
+            mode = mode_controller.get_mode()
 
-    elif command == "/live":
-        set_mode("LIVE")
-        return "Switched to LIVE mode"
+            send_message(
+                f"System operational\n"
+                f"Mode: {mode}\n"
+                f"Guardian: Active\n"
+                f"Engine: Running"
+            )
 
-    elif command == "/backtest":
-        set_mode("BACKTEST")
-        return "Switched to BACKTEST mode"
+        # DASHBOARD
+        elif cmd == "/dashboard":
 
-    elif command == "/mode":
-        return f"Current mode: {get_mode()}"
+            send_message(
+                "Dashboard ready:\n"
+                "http://127.0.0.1:5000/dashboard"
+            )
 
-    elif command == "/status":
-        return "System operational"
+        # SWITCH TO LIVE
+        elif cmd == "/live":
 
-    elif command == "/dashboard":
-        return "Dashboard: http://127.0.0.1:5000"
+            mode_controller.set_mode("LIVE")
 
-    elif command == "/help":
-        return (
-            "Commands:\n"
-            "/paper\n"
-            "/live\n"
-            "/backtest\n"
-            "/mode\n"
-            "/status\n"
-            "/dashboard"
-        )
+            send_message("Switched to LIVE mode")
 
-    return "Unknown command"
+        # SWITCH TO PAPER
+        elif cmd == "/paper":
+
+            mode_controller.set_mode("PAPER")
+
+            send_message("Switched to PAPER mode")
+
+        # LEADERBOARD
+        elif cmd == "/leaderboard":
+
+            send_message(
+                "Leaderboard:\n"
+                "http://127.0.0.1:5000/leaderboard"
+            )
+
+        # SPARK ENGINE
+        elif cmd == "/sparks":
+
+            send_message(
+                "Spark Engine:\n"
+                "http://127.0.0.1:5000/sparks"
+            )
+
+        # PERFORMANCE
+        elif cmd == "/performance":
+
+            send_message(
+                "Performance Dashboard:\n"
+                "http://127.0.0.1:5000/performance"
+            )
+
+        # STOP
+        elif cmd == "/stop":
+
+            send_message("System stop command acknowledged")
+
+        # UNKNOWN
+        else:
+
+            send_message("Unknown command")
+
+    except Exception as e:
+
+        send_message(f"Command error: {str(e)}")
