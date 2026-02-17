@@ -1,108 +1,67 @@
-# dashboard/app.py
-
-from flask import Flask, render_template, jsonify
 import json
 import os
+import threading
+import time
 from datetime import datetime
+from flask import Flask, render_template, jsonify
 
-app = Flask(__name__, template_folder="templates")
+# Paths
+BASE_DIR = os.path.dirname(os.path.dirname(__file__))
+META_FILE = os.path.join(BASE_DIR, "data", "meta_state.json")
+PERF_FILE = os.path.join(BASE_DIR, "data", "performance.json")
+TRADE_FILE = os.path.join(BASE_DIR, "data", "trades.json")
 
-DATA_DIR = "data"
+app = Flask(__name__, template_folder="templates", static_folder="static")
 
+# Global realtime state
+dashboard_state = {
+    "mode": "PAPER",
+    "equity": 0,
+    "pnl": 0,
+    "trades": 0,
+    "winrate": 0,
+    "active_strategy": "None",
+    "last_update": "",
+    "strategies": {},
+    "equity_curve": [],
+    "pnl_curve": [],
+}
 
-# Safe JSON loader
-def safe_load(filename, default):
+# ----------------------------------------
+# Load state safely
+# ----------------------------------------
 
+def load_json(path, default):
     try:
-        path = os.path.join(DATA_DIR, filename)
-
         if os.path.exists(path):
             with open(path, "r") as f:
                 return json.load(f)
-
-    except Exception as e:
-        print("JSON load error:", e)
-
+    except:
+        pass
     return default
 
 
-# Dashboard page
-@app.route("/")
-@app.route("/dashboard")
-def dashboard():
+# ----------------------------------------
+# Realtime update loop
+# ----------------------------------------
 
-    return render_template("dashboard.html")
+def realtime_updater():
+    while True:
+        meta = load_json(META_FILE, {})
+        perf = load_json(PERF_FILE, {})
+        trades = load_json(TRADE_FILE, [])
 
+        dashboard_state["mode"] = meta.get("mode", "PAPER")
+        dashboard_state["equity"] = meta.get("equity", 0)
+        dashboard_state["active_strategy"] = meta.get("strategy", "None")
+        dashboard_state["last_update"] = datetime.now().strftime("%H:%M:%S")
 
-# Leaderboard page
-@app.route("/leaderboard")
-def leaderboard():
+        dashboard_state["strategies"] = perf.get("strategies", {})
+        dashboard_state["equity_curve"] = perf.get("equity_curve", [])
+        dashboard_state["pnl_curve"] = perf.get("pnl_curve", [])
 
-    return render_template("leaderboard.html")
+        dashboard_state["trades"] = len(trades)
 
-
-# Sparks page
-@app.route("/sparks")
-def sparks():
-
-    return render_template("sparks.html")
-
-
-# REALTIME STATUS API
-@app.route("/api/status")
-def api_status():
-
-    meta = safe_load("meta_state.json", {})
-    performance = safe_load("performance.json", {})
-    elite = safe_load("elite.json", [])
-
-    return jsonify({
-
-        "time": datetime.now().strftime("%H:%M:%S"),
-
-        "mode": meta.get("mode", "PAPER"),
-
-        "equity": performance.get("equity", 8000),
-
-        "pnl": performance.get("pnl", 0),
-
-        "trades": performance.get("trades", 0),
-
-        "winrate": performance.get("winrate", 0),
-
-        "active_strategy":
-            meta.get("active_strategy", "None"),
-
-        "elite_count": len(elite)
-
-    })
-
-
-# Leaderboard API
-@app.route("/api/leaderboard")
-def api_leaderboard():
-
-    elite = safe_load("elite.json", [])
-
-    return jsonify(elite)
-
-
-# Sparks API
-@app.route("/api/performance")
-def api_performance():
-
-    perf = safe_load("performance.json", {})
-
-    return jsonify(perf)
-
-
-def run_dashboard():
-
-    print("🏛 Realtime Institutional Dashboard running")
-
-    app.run(
-        host="0.0.0.0",
-        port=5000,
-        debug=False,
-        threaded=True
-    )
+        wins = sum(1 for t in trades if t.get("pnl", 0) > 0)
+        dashboard_state["winrate"] = (
+            round(wins
