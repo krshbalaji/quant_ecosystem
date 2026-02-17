@@ -16,6 +16,8 @@ from core.maintenance import run_daily, should_run
 from core.mode_controller import enforce_mode
 from core.system_launcher import SystemLauncher
 from core.mobile_command import init
+from core.machine_guard import verify_machine
+
 
 def main():
 
@@ -31,7 +33,7 @@ def main():
 if __name__ == "__main__":
 
     main()
-    
+
 init()
 
 broker = load_broker()
@@ -47,6 +49,7 @@ if should_run():
     run_daily()
 
 rd = RDEngine()
+
 rd.evolve()
 
 schedule.every().day.at("07:00").do(run_health_check)
@@ -60,6 +63,10 @@ pm = PortfolioManager(broker, risk)
 downloader = HistoricalDownloader("CLIENT_ID", "TOKEN")
 
 strategy = ORBStrategy()
+
+verify_machine()
+
+
 def weekly_retrain():
     print("🧠 Retraining ML models...")
     engine.selector.retrain()

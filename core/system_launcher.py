@@ -19,6 +19,7 @@ from core.population_manager import PopulationManager
 from infra.telegram_service import send_menu
 from core.confidence_allocator import ConfidenceAllocator
 from core.growth_optimizer import GrowthOptimizer
+from core.state_manager import StateManager
 
 
 class SystemLauncher:
@@ -54,6 +55,9 @@ class SystemLauncher:
         self.confidence_allocator = ConfidenceAllocator()
 
         self.growth = GrowthOptimizer()
+        
+        self.state = StateManager()
+
 
     def start(self):
 
