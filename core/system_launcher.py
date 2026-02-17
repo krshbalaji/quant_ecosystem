@@ -20,6 +20,7 @@ from infra.telegram_service import send_menu
 from core.confidence_allocator import ConfidenceAllocator
 from core.growth_optimizer import GrowthOptimizer
 from core.state_manager import StateManager
+from core.autonomous_live_controller import AutonomousLiveController
 
 
 class SystemLauncher:
@@ -58,6 +59,7 @@ class SystemLauncher:
         
         self.state = StateManager()
 
+        self.live_controller = AutonomousLiveController()
 
     def start(self):
 

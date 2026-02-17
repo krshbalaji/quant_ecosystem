@@ -1,8 +1,8 @@
 import time
-from infra.telegram_service import get_updates, send_menu
+from infra.telegram_service import get_updates, send_menu, send_alert
 
 
-def listen():
+def listen(broker=None):
 
     print("Telegram listener started")
 
@@ -32,6 +32,12 @@ def listen():
                 text = msg.get("text", "")
 
                 print("Telegram command:", text)
+
+                if text == "STATUS":
+
+                    funds = broker.get_available_funds() if broker else 0
+
+                    send_alert(f"System active. Funds: {funds}")
 
         except Exception as e:
 
