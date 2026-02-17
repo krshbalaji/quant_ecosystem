@@ -156,7 +156,7 @@ class SystemLauncher:
 
                 print("Watchdog error:", e)
 
-            time.sleep(60)
+            time.sleep(300)
 
 
     def cloud_backup(self):
