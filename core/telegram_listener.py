@@ -1,40 +1,44 @@
 # core/telegram_listener.py
 
 import time
-from infra.telegram_service import get_updates, send_menu
+from infra.telegram_service import get_updates, send_message, send_menu
 from core.mobile_command import execute_command
 
 
 def listen():
 
-    print("Telegram listener active")
+    print("Telegram listener started")
 
-    last_update_id = None
-
-    send_menu()
+    offset = None
 
     while True:
 
         try:
 
-            data = get_updates(last_update_id)
+            data = get_updates(offset)
 
-            if not data["ok"]:
-                time.sleep(3)
+            if not data or "result" not in data:
+                time.sleep(2)
                 continue
 
             for update in data["result"]:
 
-                last_update_id = update["update_id"] + 1
+                offset = update["update_id"] + 1
 
                 if "message" not in update:
                     continue
 
-                msg = update["message"]["text"]
+                msg = update["message"].get("text", "")
+                chat_id = update["message"]["chat"]["id"]
 
-                print("Telegram command:", msg)
+                if msg == "/start":
 
-                execute_command(msg)
+                    send_menu()
+                    send_message("System ready. Institutional Safety Mode active.")
+
+                else:
+
+                    execute_command(msg)
 
         except Exception as e:
 
