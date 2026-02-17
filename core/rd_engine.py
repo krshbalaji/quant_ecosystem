@@ -1,105 +1,52 @@
 import os
+import shutil
 import random
-import importlib
-import time
-
-from core.assimilation_engine import AssimilationEngine
-from core.strategy_population_guard import enforce_limit
 
 
 class RDEngine:
 
     def __init__(self):
 
-        self.strategies_folder = "strategies"
-
-        self.assimilator = AssimilationEngine()
-
         print("R&D Engine initialized")
+
+        self.strategy_dir = "strategies"
+
+
+    def run(self):
+
+        print("R&D Engine evolution cycle")
+
+        try:
+
+            self.evolve()
+
+        except Exception as e:
+
+            print("R&D error:", e)
 
 
     def evolve(self):
 
-        print("R&D: scanning for new strategy ideas")
+        strategies = [
 
-        strategies = self._get_strategies()
+            f for f in os.listdir(self.strategy_dir)
 
-        if not strategies:
+            if f.endswith(".py")
+        ]
+
+        if len(strategies) < 2:
+
             return
 
-        parent = random.choice(strategies)
+        parent1, parent2 = random.sample(strategies, 2)
 
-        print(f"R&D: mutating {parent}")
+        child = f"strategy_gen_{random.randint(10000,99999)}.py"
 
-        content = self._load_strategy(parent)
+        shutil.copy(
 
-        if not content:
-            return
+            os.path.join(self.strategy_dir, parent1),
 
-        new_content = self._mutate(content)
+            os.path.join(self.strategy_dir, child)
+        )
 
-        self.assimilator.assimilate(new_content)
-
-        enforce_limit()
-
-        print("R&D evolution cycle complete")
-
-
-    def _get_strategies(self):
-
-        files = []
-
-        for f in os.listdir(self.strategies_folder):
-
-            if f.endswith(".py") and not f.startswith("__"):
-
-                files.append(f)
-
-        return files
-
-
-    def _load_strategy(self, filename):
-
-        path = os.path.join(self.strategies_folder, filename)
-
-        try:
-
-            with open(path, "r") as f:
-
-                return f.read()
-
-        except:
-
-            return None
-
-
-    def _mutate(self, content):
-
-        lines = content.split("\n")
-
-        if len(lines) > 5:
-
-            idx = random.randint(0, len(lines) - 1)
-
-            lines[idx] = lines[idx]  # safe mutation placeholder
-
-        return "\n".join(lines)
-
-        def run(self):
-
-            print("R&D Engine running evolution cycle")
-
-            try:
-
-                if hasattr(self, "scan"):
-                    self.scan()
-
-                if hasattr(self, "mutate"):
-                    self.mutate()
-
-                if hasattr(self, "evaluate"):
-                    self.evaluate()
-
-            except Exception as e:
-
-                print("R&D Engine error:", e)
+        print(f"Evolved new strategy: {child}")
