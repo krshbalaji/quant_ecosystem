@@ -1,1 +1,5 @@
-{}
+{
+    "orb_strategy": 0.5,
+    "ema_ribbon": 0.6,
+    "vwap_pullback": 0.4
+}
