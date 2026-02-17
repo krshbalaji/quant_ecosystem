@@ -15,6 +15,7 @@ from dashboard import app as dashboard_app
 from core.auto_deploy import AutoDeploy
 from core.self_healing import SelfHealingEngine
 from core.genetic_engine import GeneticEngine
+from core.population_manager import PopulationManager
 
 
 class SystemLauncher:
@@ -44,6 +45,8 @@ class SystemLauncher:
         self.healer = SelfHealingEngine()
 
         self.genetic = GeneticEngine()
+
+        self.population = PopulationManager()
 
     def start(self):
 
