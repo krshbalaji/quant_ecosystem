@@ -85,6 +85,10 @@ class SystemLauncher:
 
         # start telegram listener
         threading.Thread(target=listen, daemon=True).start()
+        from infra.telegram_service import send_message, send_menu
+
+        send_message("Quant Ecosystem Online")
+        send_menu()
 
         # start watchdog
         threading.Thread(
