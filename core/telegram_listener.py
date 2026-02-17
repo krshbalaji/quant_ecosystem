@@ -1,52 +1,56 @@
+# core/telegram_listener.py
+
 import time
-from infra.telegram_service import get_updates, send_message
+from infra.telegram_service import get_updates, send_menu
 from core.mobile_command import execute_command
 
-LAST_UPDATE_ID = None
 
 def listen():
-    global LAST_UPDATE_ID
 
     print("Telegram listener active")
 
-    while True:
-        try:
-            updates = get_updates(LAST_UPDATE_ID)
+    last_update_id = None
 
-            if not updates:
+    send_menu()
+
+    while True:
+
+        try:
+
+            data = get_updates(last_update_id)
+
+            if not data:
                 time.sleep(2)
                 continue
 
+            if not data.get("ok"):
+                time.sleep(2)
+                continue
+
+            updates = data.get("result", [])
+
             for update in updates:
 
-                LAST_UPDATE_ID = update["update_id"] + 1
+                last_update_id = update["update_id"] + 1
 
-                if "message" not in update:
+                message = update.get("message")
+
+                if not message:
                     continue
 
-                chat_id = update["message"]["chat"]["id"]
-                text = update["message"].get("text", "")
+                text = message.get("text")
 
-                print(f"Telegram command received: {text}")
+                if not text:
+                    continue
 
-                if text == "/start":
-                    send_message(chat_id,
-                        "Institutional Guardian Mode Active\n\n"
-                        "Available commands:\n"
-                        "/status\n"
-                        "/live_on\n"
-                        "/live_off\n"
-                        "/paper_on\n"
-                        "/capital\n"
-                        "/positions\n"
-                        "/shutdown"
-                    )
+                text = text.strip().upper()
 
-                elif text.startswith("/"):
-                    response = execute_command(text)
-                    send_message(chat_id, response)
+                print("Telegram command received:", text)
+
+                execute_command(text)
 
         except Exception as e:
+
             print("Telegram listener error:", e)
 
-        time.sleep(1)
+        time.sleep(2)
