@@ -6,86 +6,88 @@ import os
 
 SECRETS_FILE = "infra/secrets.json"
 
-def load_secrets():
-    if not os.path.exists(SECRETS_FILE):
-        raise Exception("Telegram secrets.json missing")
 
-    return json.load(open(SECRETS_FILE))
+def load_secrets():
+
+    if not os.path.exists(SECRETS_FILE):
+        print("Telegram secrets.json missing")
+        return None, None
+
+    with open(SECRETS_FILE, "r") as f:
+        data = json.load(f)
+
+    return data.get("TELEGRAM_TOKEN"), data.get("TELEGRAM_CHAT_ID")
+
+
+TOKEN, CHAT_ID = load_secrets()
 
 
 def send_message(text):
 
-    secrets = load_secrets()
+    if not TOKEN or not CHAT_ID:
+        print("Telegram not configured")
+        return
 
-    token = secrets["TELEGRAM_TOKEN"]
-    chat_id = secrets["TELEGRAM_CHAT_ID"]
-
-    url = f"https://api.telegram.org/bot{token}/sendMessage"
+    url = f"https://api.telegram.org/bot{TOKEN}/sendMessage"
 
     payload = {
-        "chat_id": chat_id,
-        "text": text,
-        "parse_mode": "Markdown"
+        "chat_id": CHAT_ID,
+        "text": text
     }
 
     try:
         requests.post(url, json=payload, timeout=10)
+        print("Telegram message sent")
+
     except Exception as e:
-        print("Telegram send_message error:", e)
-
-
-def send_alert(text):
-
-    send_message(f"🚨 {text}")
+        print("Telegram send error:", e)
 
 
 def send_menu():
 
-    secrets = load_secrets()
+    if not TOKEN or not CHAT_ID:
+        return
 
-    token = secrets["TELEGRAM_TOKEN"]
-    chat_id = secrets["TELEGRAM_CHAT_ID"]
-
-    url = f"https://api.telegram.org/bot{token}/sendMessage"
+    url = f"https://api.telegram.org/bot{TOKEN}/sendMessage"
 
     keyboard = {
         "keyboard": [
-            ["Status", "Equity"],
-            ["Enable LIVE", "Disable LIVE"],
-            ["Pause", "Resume"],
-            ["Shutdown"]
+            ["STATUS", "START LIVE"],
+            ["STOP LIVE", "FORCE PAPER"],
+            ["SHUTDOWN", "RESTART"]
         ],
-        "resize_keyboard": True,
-        "one_time_keyboard": False
+        "resize_keyboard": True
     }
 
     payload = {
-        "chat_id": chat_id,
+        "chat_id": CHAT_ID,
         "text": "Quant Ecosystem Control Panel",
         "reply_markup": keyboard
     }
 
-    try:
-        requests.post(url, json=payload, timeout=10)
-    except Exception as e:
-        print("Telegram menu error:", e)
+    requests.post(url, json=payload)
+
+
+def send_alert(text):
+    send_message("🚨 " + text)
 
 
 def get_updates(offset=None):
 
-    secrets = load_secrets()
+    if not TOKEN:
+        return None
 
-    token = secrets["TELEGRAM_TOKEN"]
+    url = f"https://api.telegram.org/bot{TOKEN}/getUpdates"
 
-    url = f"https://api.telegram.org/bot{token}/getUpdates"
-
-    params = {}
+    params = {"timeout": 30}
 
     if offset:
         params["offset"] = offset
 
     try:
-        r = requests.get(url, params=params, timeout=10)
+        r = requests.get(url, params=params, timeout=35)
         return r.json()
-    except:
-        return {}
+
+    except Exception as e:
+        print("Telegram update error:", e)
+        return None
