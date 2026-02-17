@@ -1,138 +1,46 @@
-import json
-import os
-import sys
-import subprocess
-
-from infra.telegram_service import send_message
-
-
-CONTROL_FILE = "data/system_control.json"
-
-from core.live_control_guard import request, approve
-
 # core/mobile_command.py
 
-from infra.telegram_service import send_alert
-
-
-from core.mode_controller import ModeController
-
-mode_controller = ModeController()
-
-
-def execute_command(command):
-
-    command = command.lower()
-
-    if command == "/status":
-        return "System ACTIVE\nMode: " + mode_controller.get_mode()
-
-    elif command == "/live_on":
-        mode_controller.enable_live()
-        return "LIVE trading ENABLED"
-
-    elif command == "/live_off":
-        mode_controller.disable_live()
-        return "LIVE trading DISABLED"
-
-    elif command == "/paper_on":
-        mode_controller.enable_paper()
-        return "PAPER mode ENABLED"
-
-    elif command == "/capital":
-        return "Capital protection ACTIVE"
-
-    elif command == "/shutdown":
-        return "Shutdown request received"
-
-    else:
-        return "Unknown command"
-
-
-def request_live():
-
-    request()
-
-    send_message(
-        "LIVE requested. Press APPROVE LIVE to confirm."
-    )
-
-
-def approve_live():
-
-    approve()
-
-    send_message("LIVE approved and enabled.")
+from core.mode_controller import set_mode, get_mode
 
 
 def init():
-
-    os.makedirs("data", exist_ok=True)
-
-    if not os.path.exists(CONTROL_FILE):
-
-        json.dump({
-            "trading_enabled": True,
-            "mode": "PAPER"
-        }, open(CONTROL_FILE, "w"))
+    print("Mobile command interface initialized")
 
 
-def set_mode(mode):
+def execute_command(command: str):
 
-    data = json.load(open(CONTROL_FILE))
+    command = command.lower().strip()
 
-    data["mode"] = mode
+    if command == "/paper":
+        set_mode("PAPER")
+        return "Switched to PAPER mode"
 
-    json.dump(data, open(CONTROL_FILE, "w"))
+    elif command == "/live":
+        set_mode("LIVE")
+        return "Switched to LIVE mode"
 
-    json.dump({"mode": mode}, open("config/trading_mode.json", "w"))
+    elif command == "/backtest":
+        set_mode("BACKTEST")
+        return "Switched to BACKTEST mode"
 
-    send_message(f"Mode switched to {mode}")
+    elif command == "/mode":
+        return f"Current mode: {get_mode()}"
 
+    elif command == "/status":
+        return "System operational"
 
-def stop_trading():
+    elif command == "/dashboard":
+        return "Dashboard: http://127.0.0.1:5000"
 
-    data = json.load(open(CONTROL_FILE))
+    elif command == "/help":
+        return (
+            "Commands:\n"
+            "/paper\n"
+            "/live\n"
+            "/backtest\n"
+            "/mode\n"
+            "/status\n"
+            "/dashboard"
+        )
 
-    data["trading_enabled"] = False
-
-    json.dump(data, open(CONTROL_FILE, "w"))
-
-    send_message("Trading stopped")
-
-
-def start_trading():
-
-    data = json.load(open(CONTROL_FILE))
-
-    data["trading_enabled"] = True
-
-    json.dump(data, open(CONTROL_FILE, "w"))
-
-    send_message("Trading started")
-
-
-def restart_system():
-
-    send_message("Restarting system")
-
-    subprocess.Popen([sys.executable, "main.py"])
-
-    os._exit(0)
-
-
-def status(broker):
-
-    balance = broker.get_balance()
-
-    data = json.load(open(CONTROL_FILE))
-
-    msg = f"""
-System Status
-
-Trading: {data['trading_enabled']}
-Mode: {data['mode']}
-Balance: {balance}
-"""
-
-    send_message(msg)
+    return "Unknown command"

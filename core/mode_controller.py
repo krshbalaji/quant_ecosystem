@@ -1,5 +1,6 @@
 # core/mode_controller.py
 
+
 class ModeController:
 
     def __init__(self):
@@ -49,12 +50,38 @@ class ModeController:
 
 
 
-# GLOBAL INSTANCE (singleton)
+# CREATE GLOBAL INSTANCE AFTER CLASS DEFINITION
 mode_controller = ModeController()
 
 
 
-# THIS IS THE FUNCTION YOUR SYSTEM NEEDS
+# REQUIRED WRAPPER FUNCTIONS
+
+def set_mode(new_mode):
+
+    return mode_controller.set_mode(new_mode)
+
+
+def get_mode():
+
+    return mode_controller.get_mode()
+
+
+def is_live():
+
+    return mode_controller.is_live()
+
+
+def is_paper():
+
+    return mode_controller.is_paper()
+
+
+def is_backtest():
+
+    return mode_controller.is_backtest()
+
+
 def enforce_mode():
 
     current = mode_controller.get_mode()

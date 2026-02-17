@@ -1,19 +1,35 @@
-import json
-from infra.telegram_service import send_message
+# core/mode_controller.py
+
+MODE = "PAPER"
+
+print("Mode Controller initialized in PAPER mode")
 
 
-def set_mode(mode):
+def set_mode(new_mode):
+    global MODE
 
-    json.dump(
-        {"mode": mode},
-        open("config/trading_mode.json", "w")
-    )
+    new_mode = new_mode.upper()
 
-    send_message(f"Trading mode changed to {mode}")
+    if new_mode in ["PAPER", "LIVE", "STOP"]:
+        MODE = new_mode
+        print(f"Mode switched to {MODE}")
+        return True
+
+    print("Invalid mode:", new_mode)
+    return False
 
 
-def get_status(broker):
+def get_mode():
+    return MODE
 
-    balance = broker.get_balance()
 
-    send_message(f"Balance: {balance}")
+def is_live():
+    return MODE == "LIVE"
+
+
+def is_paper():
+    return MODE == "PAPER"
+
+
+def is_stopped():
+    return MODE == "STOP"
