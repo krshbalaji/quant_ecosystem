@@ -14,6 +14,7 @@ from core.telegram_listener import listen
 from dashboard import app as dashboard_app
 from core.auto_deploy import AutoDeploy
 from core.self_healing import SelfHealingEngine
+from core.genetic_engine import GeneticEngine
 
 
 class SystemLauncher:
@@ -41,6 +42,8 @@ class SystemLauncher:
         self.deploy = AutoDeploy()
 
         self.healer = SelfHealingEngine()
+
+        self.genetic = GeneticEngine()
 
     def start(self):
 
