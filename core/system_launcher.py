@@ -150,6 +150,10 @@ class SystemLauncher:
 
                 self.healer.heal()
 
+                self.rd.run()
+
+                self.genetic.breed()
+                
                 self.population.run()
 
             except Exception as e:
