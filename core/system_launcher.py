@@ -23,6 +23,7 @@ from core.state_manager import StateManager
 from core.autonomous_live_controller import AutonomousLiveController
 from core.escalation_ladder import EscalationLadder
 from core.market_session import MarketSession
+from core.capital_insurance import CapitalInsuranceEngine
 
 
 class SystemLauncher:
@@ -67,6 +68,7 @@ class SystemLauncher:
 
         self.session = MarketSession()
 
+        self.capital_insurance = CapitalInsuranceEngine(broker)
 
     def start(self):
 
@@ -82,11 +84,7 @@ class SystemLauncher:
         ).start()
 
         # start telegram listener
-        threading.Thread(
-            target=listen,
-            args=(self.broker,),
-            daemon=True
-        ).start()
+        threading.Thread(target=listen, daemon=True).start()
 
         # start watchdog
         threading.Thread(
@@ -227,6 +225,12 @@ class SystemLauncher:
 
                 print("Market closed — standby mode")
 
+            self.capital_insurance.update_equity()
+
+            if self.capital_insurance.check_protection():
+
+                print("Capital Insurance ACTIVE — trading blocked")
+                return
 
     def run_watchdog(self):
 
