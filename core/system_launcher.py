@@ -24,6 +24,7 @@ from core.autonomous_live_controller import AutonomousLiveController
 from core.escalation_ladder import EscalationLadder
 from core.market_session import MarketSession
 from core.capital_insurance import CapitalInsuranceEngine
+from core.meta_intelligence import meta_intelligence
 
 
 class SystemLauncher:
@@ -293,3 +294,12 @@ class SystemLauncher:
         except Exception as e:
 
             print("Backup error:", e)
+
+    regime = meta_intelligence.predict_regime()
+
+    print("Meta Intelligence Prediction:", regime)
+
+    if meta_intelligence.should_trade_live():
+        print("LIVE trading permitted")
+    else:
+        print("LIVE trading blocked by guardian")
