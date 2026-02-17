@@ -1,93 +1,66 @@
-# infra/telegram_service.py
-
 import requests
 import json
-import os
+from infra.secrets import TELEGRAM_TOKEN, TELEGRAM_CHAT_ID
 
-# Load secrets safely
-BASE_DIR = os.path.dirname(os.path.dirname(__file__))
-SECRETS_FILE = os.path.join(BASE_DIR, "infra", "secrets.json")
+BASE_URL = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}"
 
-with open(SECRETS_FILE, "r") as f:
-    secrets = json.load(f)
-
-TOKEN = secrets["TELEGRAM_TOKEN"]
-CHAT_ID = secrets["TELEGRAM_CHAT_ID"]
-
-BASE_URL = f"https://api.telegram.org/bot{TOKEN}"
+LAST_UPDATE_ID = None
 
 
-# SEND MESSAGE
 def send_message(text):
 
     url = f"{BASE_URL}/sendMessage"
 
     payload = {
-        "chat_id": CHAT_ID,
-        "text": text,
-        "parse_mode": "HTML"
+        "chat_id": TELEGRAM_CHAT_ID,
+        "text": text
     }
 
-    try:
-        requests.post(url, json=payload, timeout=10)
-        print("Telegram message sent")
+    r = requests.post(url, json=payload)
 
-    except Exception as e:
-        print("Telegram send error:", e)
+    print("Telegram message sent")
+
+    return r.json()
 
 
-# SEND MENU
+def send_alert(text):
+
+    return send_message(f"🚨 {text}")
+
+
 def send_menu():
 
     url = f"{BASE_URL}/sendMessage"
 
     keyboard = {
         "keyboard": [
-            [{"text": "STATUS"}, {"text": "PERFORMANCE"}],
-            [{"text": "POSITIONS"}, {"text": "MODE"}],
-            [{"text": "START LIVE"}, {"text": "STOP LIVE"}]
+            [{"text": "Status"}, {"text": "Equity"}],
+            [{"text": "Positions"}, {"text": "Start LIVE"}],
+            [{"text": "Stop LIVE"}, {"text": "Restart"}]
         ],
-        "resize_keyboard": True,
-        "one_time_keyboard": False
+        "resize_keyboard": True
     }
 
     payload = {
-        "chat_id": CHAT_ID,
-        "text": "Institutional Control Panel",
+        "chat_id": TELEGRAM_CHAT_ID,
+        "text": "Institutional Quant Ecosystem Ready",
         "reply_markup": keyboard
     }
 
-    try:
-        requests.post(url, json=payload, timeout=10)
-        print("Telegram menu sent")
+    requests.post(url, json=payload)
 
-    except Exception as e:
-        print("Telegram menu error:", e)
+    print("Telegram menu sent")
 
 
-# RECEIVE UPDATES
 def get_updates(offset=None):
 
     url = f"{BASE_URL}/getUpdates"
 
-    params = {
-        "timeout": 10
-    }
+    params = {}
 
     if offset:
         params["offset"] = offset
 
-    try:
+    response = requests.get(url, params=params)
 
-        response = requests.get(url, params=params, timeout=15)
-
-        return response.json()
-
-    except Exception as e:
-
-        print("Telegram polling error:", e)
-
-        return None
-# COMPATIBILITY WRAPPER
-def send_alert(text):
-    send_message(text)
+    return response.json()
