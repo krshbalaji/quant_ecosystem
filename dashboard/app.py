@@ -32,3 +32,25 @@ def health():
     return jsonify({
         "system": "healthy"
     })
+
+@app.route("/dashboard")
+def dashboard():
+    return """
+    <h1>Quant Ecosystem Dashboard</h1>
+    <p>System Active</p>
+    <p><a href='/spark'>Spark Leaderboard</a></p>
+    """
+
+@app.route("/spark")
+def spark():
+    return jsonify({
+        "strategies": 32,
+        "status": "Spark Engine Active"
+    })
+
+@app.route("/leaderboard")
+def leaderboard():
+    return jsonify({
+        "top_strategy": "strategy_gen_42522",
+        "confidence": 0.74
+    })

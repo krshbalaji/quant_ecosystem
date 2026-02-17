@@ -1,47 +1,52 @@
-# core/telegram_listener.py
-
 import time
-from infra.telegram_service import get_updates, send_message, send_menu
+from infra.telegram_service import get_updates, send_message
 from core.mobile_command import execute_command
 
+LAST_UPDATE_ID = None
 
 def listen():
+    global LAST_UPDATE_ID
 
-    print("Telegram listener started")
-
-    offset = None
+    print("Telegram listener active")
 
     while True:
-
         try:
+            updates = get_updates(LAST_UPDATE_ID)
 
-            data = get_updates(offset)
-
-            if not data or "result" not in data:
+            if not updates:
                 time.sleep(2)
                 continue
 
-            for update in data["result"]:
+            for update in updates:
 
-                offset = update["update_id"] + 1
+                LAST_UPDATE_ID = update["update_id"] + 1
 
                 if "message" not in update:
                     continue
 
-                msg = update["message"].get("text", "")
                 chat_id = update["message"]["chat"]["id"]
+                text = update["message"].get("text", "")
 
-                if msg == "/start":
+                print(f"Telegram command received: {text}")
 
-                    send_menu()
-                    send_message("System ready. Institutional Safety Mode active.")
+                if text == "/start":
+                    send_message(chat_id,
+                        "Institutional Guardian Mode Active\n\n"
+                        "Available commands:\n"
+                        "/status\n"
+                        "/live_on\n"
+                        "/live_off\n"
+                        "/paper_on\n"
+                        "/capital\n"
+                        "/positions\n"
+                        "/shutdown"
+                    )
 
-                else:
-
-                    execute_command(msg)
+                elif text.startswith("/"):
+                    response = execute_command(text)
+                    send_message(chat_id, response)
 
         except Exception as e:
-
             print("Telegram listener error:", e)
 
-        time.sleep(2)
+        time.sleep(1)
