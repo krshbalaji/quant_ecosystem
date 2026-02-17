@@ -150,6 +150,8 @@ class SystemLauncher:
 
                 self.healer.heal()
 
+                self.population.run()
+
             except Exception as e:
 
                 print("Watchdog error:", e)
