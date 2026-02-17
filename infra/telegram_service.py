@@ -1,4 +1,5 @@
 import requests
+import json
 from infra.secrets import TELEGRAM_TOKEN, TELEGRAM_CHAT_ID
 
 BASE_URL = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}"
@@ -16,10 +17,9 @@ def send_message(text):
     requests.post(url, json=payload)
 
 
-# REQUIRED BY telegram_listener
 def send_alert(text):
 
-    send_message(f"ALERT: {text}")
+    send_message("🚨 " + text)
 
 
 def send_menu():
@@ -28,14 +28,13 @@ def send_menu():
 
     keyboard = {
         "keyboard": [
-            ["STATUS", "PORTFOLIO"],
-            ["START LIVE", "STOP LIVE"],
-            ["START PAPER", "STOP PAPER"],
-            ["EVOLVE", "RECOVERY MODE"],
-            ["EMERGENCY STOP"]
+            ["START", "STOP"],
+            ["STATUS", "MODE"],
+            ["ENABLE LIVE", "DISABLE LIVE"],
+            ["FORCE EXIT", "RESTART"]
         ],
         "resize_keyboard": True,
-        "persistent": True
+        "one_time_keyboard": False
     }
 
     payload = {
@@ -56,6 +55,6 @@ def get_updates(offset=None):
     if offset:
         params["offset"] = offset
 
-    r = requests.get(url, params=params)
+    response = requests.get(url, params=params)
 
-    return r.json()
+    return response.json()
