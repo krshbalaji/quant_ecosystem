@@ -1,82 +1,37 @@
 import time
-
-from infra.telegram_service import get_updates, send_alert, send_menu
-from infra.telegram_service import send_menu
-
-from core.mobile_command import (
-    set_mode,
-    stop_trading,
-    start_trading,
-    restart_system,
-    status,
-    request_live,
-    approve_live
-)
+from infra.telegram_service import get_updates, send_menu
 
 
-last_update_id = None
-
-
-def listen(broker):
+def listen():
 
     print("Telegram listener started")
 
-    send_menu()   # ADD THIS LINE
+    send_menu()
 
-    last_update_id = None
+    offset = None
 
     while True:
-   
+
         try:
 
-            updates = get_updates(last_update_id)
+            data = get_updates(offset)
 
-            for update in updates:
+            if not data.get("ok"):
+                time.sleep(2)
+                continue
 
-                last_update_id = update["update_id"] + 1
+            for update in data.get("result", []):
+
+                offset = update["update_id"] + 1
 
                 if "message" not in update:
                     continue
 
-                msg = update["message"].get("text", "")
+                msg = update["message"]
 
-                if msg == "Switch PAPER":
+                text = msg.get("text", "")
 
-                    set_mode("PAPER")
-                    send_alert("Switched to PAPER")
-
-                elif msg == "Request LIVE":
-
-                    request_live()
-
-                elif msg == "Approve LIVE":
-
-                    approve_live()
-
-                elif msg == "Stop Trading":
-
-                    stop_trading()
-
-                elif msg == "Start Trading":
-
-                    start_trading()
-
-                elif msg == "Restart System":
-
-                    restart_system()
-
-                elif msg == "Status":
-
-                    status(broker)
-
-                elif msg == "Balance":
-
-                    bal = broker.get_balance()
-                    send_alert(f"Balance: {bal}")
-
-                elif msg == "Leaderboard":
-
-                    send_alert("Leaderboard requested")
+                print("Telegram command:", text)
 
         except Exception as e:
 
