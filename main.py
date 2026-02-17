@@ -1,7 +1,7 @@
 # main.py
 # Institutional Production Launcher
 # Fast, Threaded, Stable
-
+import webbrowser
 import threading
 import time
 import schedule
@@ -33,6 +33,11 @@ def start_dashboard():
     print("🚀 Starting Institutional Dashboard...")
     run_dashboard()
 
+def open_dashboard():
+    time.sleep(2)
+    webbrowser.open("http://127.0.0.1:5000/dashboard")
+
+threading.Thread(target=open_dashboard, daemon=True).start()
 
 def start_telegram():
     print("📡 Starting Telegram Control Interface...")
@@ -57,7 +62,13 @@ def scheduler_loop():
 
     print("⏱ Scheduler Engine Active")
 
-    downloader = HistoricalDownloader()
+    from infra.secrets import FYERS_CLIENT_ID, FYERS_TOKEN
+
+    downloader = HistoricalDownloader(
+    client_id=FYERS_CLIENT_ID,
+    token=FYERS_TOKEN
+)
+
     strategy = ORBStrategy()
 
     broker = load_broker()
