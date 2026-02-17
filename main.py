@@ -15,7 +15,7 @@ from core.broker_loader import load_broker
 from core.maintenance import run_daily, should_run
 from core.mode_controller import enforce_mode
 from core.system_launcher import SystemLauncher
-from core.mobile_command import init
+
 from core.machine_guard import verify_machine
 
 
@@ -33,8 +33,6 @@ def main():
 if __name__ == "__main__":
 
     main()
-
-init()
 
 broker = load_broker()
 
