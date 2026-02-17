@@ -1,34 +1,23 @@
-from flask import Flask, jsonify
-import json
-import os
+from flask import Flask, render_template
 
 app = Flask(__name__)
 
 
 @app.route("/")
 def home():
-
-    return jsonify({
-        "status": "Quant Ecosystem Running",
-        "engine": "ACTIVE"
-    })
+    return render_template("dashboard.html")
 
 
-@app.route("/performance")
-def performance():
-
-    file = "data/strategy_performance.json"
-
-    if os.path.exists(file):
-
-        return jsonify(json.load(open(file)))
-
-    return jsonify({})
+@app.route("/dashboard")
+def dashboard():
+    return render_template("dashboard.html")
 
 
-@app.route("/health")
-def health():
+@app.route("/leaderboard")
+def leaderboard():
+    return render_template("leaderboard.html")
 
-    return jsonify({
-        "system": "healthy"
-    })
+
+@app.route("/sparks")
+def sparks():
+    return render_template("sparks.html")
