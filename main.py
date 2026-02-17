@@ -144,6 +144,8 @@ def main():
         daemon=True
     ).start()
 
+    threading.Thread(target=run_dashboard, daemon=True).start()
+    
     print("✅ Institutional Ecosystem ACTIVE")
 
     while True:
