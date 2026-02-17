@@ -8,7 +8,7 @@ load_dotenv()
 # infra/secrets.py
 
 TELEGRAM_TOKEN = "YOUR_NEW_TOKEN"
-TELEGRAM_CHAT_ID = "23687351"
+TELEGRAM_CHAT_ID = "7820843780"
 
 
 # FYERS
