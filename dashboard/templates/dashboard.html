@@ -1,67 +1,50 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Institutional Quant Dashboard</title>
 
-<style>
+<title>Institutional Dashboard</title>
 
-body{
-background:#0b1220;
-color:#00ffa3;
-font-family:Arial;
-padding:20px;
+<script>
+
+async function updateDashboard(){
+
+    let r = await fetch("/api/status");
+
+    let data = await r.json();
+
+    document.getElementById("mode").innerText = data.mode;
+    document.getElementById("equity").innerText = data.equity;
+    document.getElementById("pnl").innerText = data.pnl;
+    document.getElementById("trades").innerText = data.trades;
+    document.getElementById("winrate").innerText = data.winrate;
+    document.getElementById("strategy").innerText = data.active_strategy;
+    document.getElementById("time").innerText = data.time;
+
 }
 
-.card{
-background:#121a2f;
-padding:20px;
-margin:10px;
-border-radius:10px;
-}
+setInterval(updateDashboard, 2000);
 
-h1{
-color:#00ffa3;
-}
-
-.value{
-font-size:24px;
-color:white;
-}
-
-</style>
+</script>
 
 </head>
-<body>
 
-<h1>Institutional Quant Ecosystem</h1>
+<body style="background:black;color:lime;font-family:consolas;">
 
-<div class="card">
-Mode: <span class="value">{{data.mode}}</span>
-</div>
+<h1>🏛 Institutional Control Dashboard</h1>
 
-<div class="card">
-Equity: ₹ <span class="value">{{data.equity}}</span>
-</div>
+<p>Time: <span id="time"></span></p>
 
-<div class="card">
-Market Regime: <span class="value">{{data.regime}}</span>
-</div>
+<p>Mode: <span id="mode"></span></p>
 
-<div class="card">
-Allocation Mode: <span class="value">{{data.allocation}}</span>
-</div>
+<p>Equity: ₹<span id="equity"></span></p>
 
-<div class="card">
-Active Strategies: <span class="value">{{data.strategy_count}}</span>
-</div>
+<p>PNL: ₹<span id="pnl"></span></p>
 
-<div class="card">
-Recovery Mode: <span class="value">{{data.recovery}}</span>
-</div>
+<p>Trades: <span id="trades"></span></p>
 
-<div class="card">
-Last Update: <span class="value">{{data.timestamp}}</span>
-</div>
+<p>Winrate: <span id="winrate"></span>%</p>
+
+<p>Active Strategy: <span id="strategy"></span></p>
 
 </body>
 </html>

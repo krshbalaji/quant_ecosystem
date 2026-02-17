@@ -1,34 +1,32 @@
-<!DOCTYPE html>
 <html>
+
 <head>
-<title>Spark Engine</title>
-<style>
-body{
-background:#0b1220;
-color:#00ffa3;
-font-family:Arial;
-padding:20px;
+
+<script>
+
+async function loadPerf(){
+
+let r=await fetch("/api/performance");
+
+let data=await r.json();
+
+document.getElementById("perf").innerText=
+JSON.stringify(data,null,2);
+
 }
 
-.row{
-background:#121a2f;
-margin:5px;
-padding:10px;
-border-radius:5px;
-}
-</style>
+setInterval(loadPerf,2000);
+
+</script>
+
 </head>
-<body>
 
-<h1>Spark Evolution Engine</h1>
+<body style="background:black;color:yellow;">
 
-{% for s in strategies %}
+<h2>Performance Metrics</h2>
 
-<div class="row">
-Spark Generated: {{s}}
-</div>
-
-{% endfor %}
+<pre id="perf"></pre>
 
 </body>
+
 </html>

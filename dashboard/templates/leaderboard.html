@@ -1,29 +1,37 @@
+<html>
+<head>
+
 <script>
 
 async function loadLeaderboard(){
 
-    const res = await fetch("/api/leaderboard");
-    const data = await res.json();
+let r = await fetch("/api/leaderboard");
 
-    const container = document.getElementById("board");
-    container.innerHTML = "";
+let data = await r.json();
 
-    data.leaderboard.forEach((s,i)=>{
+let html="";
 
-        container.innerHTML += `
-        <div class="row">
-            #${i+1}
-            ${s.strategy}
-            Score: ${s.score}
-            PnL: ₹${s.pnl}
-            Winrate: ${s.winrate}
-        </div>`;
-    });
+for(let s of data){
+
+html+=`<p>${s.name} score:${s.score}</p>`;
 
 }
 
-setInterval(loadLeaderboard, 2000);
+document.getElementById("board").innerHTML=html;
+
+}
+
+setInterval(loadLeaderboard,3000);
 
 </script>
 
+</head>
+
+<body style="background:black;color:cyan;">
+
+<h2>Strategy Leaderboard</h2>
+
 <div id="board"></div>
+
+</body>
+</html>
