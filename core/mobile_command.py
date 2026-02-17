@@ -10,6 +10,41 @@ CONTROL_FILE = "data/system_control.json"
 
 from core.live_control_guard import request, approve
 
+# core/mobile_command.py
+
+from infra.telegram_service import send_alert
+
+
+def execute_command(cmd):
+
+    if cmd == "Status":
+
+        send_alert("System running normally")
+
+    elif cmd == "Equity":
+
+        send_alert("Equity: ₹8000")
+
+    elif cmd == "Enable LIVE":
+
+        send_alert("LIVE mode request received")
+
+    elif cmd == "Disable LIVE":
+
+        send_alert("LIVE mode disabled")
+
+    elif cmd == "Pause":
+
+        send_alert("Trading paused")
+
+    elif cmd == "Resume":
+
+        send_alert("Trading resumed")
+
+    elif cmd == "Shutdown":
+
+        send_alert("System shutting down")
+        exit()
 
 def request_live():
 

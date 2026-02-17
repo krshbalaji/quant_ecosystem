@@ -5,8 +5,10 @@ load_dotenv()
 
 
 # TELEGRAM
-TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN", "")
-TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID", "")
+# infra/secrets.py
+
+TELEGRAM_TOKEN = "YOUR_NEW_TOKEN"
+TELEGRAM_CHAT_ID = "23687351"
 
 
 # FYERS

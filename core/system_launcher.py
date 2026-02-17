@@ -203,6 +203,30 @@ class SystemLauncher:
 
                 return
 
+            phase = self.session.get_phase()
+
+            print("Market phase:", phase)
+
+            if phase == "PREMARKET":
+
+                print("Running premarket preparation")
+
+                self.spark.scan_strategies()
+
+                self.population_manager.prepare()
+
+                self.growth_optimizer.prepare()
+
+            elif phase == "OPEN":
+
+                print("Trading active")
+
+                self.trade_loop()
+
+            else:
+
+                print("Market closed — standby mode")
+
 
     def run_watchdog(self):
 

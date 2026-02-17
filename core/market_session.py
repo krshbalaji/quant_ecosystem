@@ -1,6 +1,7 @@
 from datetime import datetime, time as dtime
 
 
+PREMARKET_START = dtime(9, 0)
 MARKET_OPEN = dtime(9, 15)
 MARKET_CLOSE = dtime(15, 30)
 
@@ -12,17 +13,15 @@ class MarketSession:
         print("Market Session Controller initialized")
 
 
-    def is_market_open(self):
+    def get_phase(self):
 
         now = datetime.now().time()
 
-        return MARKET_OPEN <= now <= MARKET_CLOSE
+        if PREMARKET_START <= now < MARKET_OPEN:
+            return "PREMARKET"
 
-
-    def get_status(self):
-
-        if self.is_market_open():
-
+        elif MARKET_OPEN <= now <= MARKET_CLOSE:
             return "OPEN"
 
-        return "CLOSED"
+        else:
+            return "CLOSED"
