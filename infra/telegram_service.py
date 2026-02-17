@@ -1,63 +1,50 @@
 import requests
-from infra.secrets import get_telegram_token, get_telegram_chat_id
+import json
+from infra.secrets import TELEGRAM_TOKEN, TELEGRAM_CHAT_ID
+
+BASE_URL = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}"
 
 
-TOKEN = get_telegram_token()
-CHAT_ID = get_telegram_chat_id()
-
-BASE_URL = f"https://api.telegram.org/bot{TOKEN}"
-
-
-# Unified send function
-def send_message(message):
-
-    if not TOKEN or not CHAT_ID:
-
-        print("Telegram credentials missing")
-
-        return False
+# SEND MESSAGE
+def send_message(text):
 
     url = f"{BASE_URL}/sendMessage"
 
     payload = {
-        "chat_id": CHAT_ID,
-        "text": message
+        "chat_id": TELEGRAM_CHAT_ID,
+        "text": text
     }
 
-    r = requests.post(url, json=payload)
-
-    return r.json()
+    requests.post(url, json=payload)
 
 
-# Backward compatibility
-def send_alert(message):
-
-    return send_message(message)
-
-
-# Menu buttons
+# CREATE MENU BUTTONS
 def send_menu():
+
+    url = f"{BASE_URL}/sendMessage"
 
     keyboard = {
         "keyboard": [
-            ["Status", "Balance"],
-            ["Switch PAPER", "Request LIVE"],
-            ["Approve LIVE", "Stop Trading"],
-            ["Restart System", "Leaderboard"]
+            ["STATUS", "MODE"],
+            ["START LIVE", "STOP LIVE"],
+            ["START PAPER", "STOP PAPER"],
+            ["FORCE EVOLVE", "EMERGENCY STOP"],
+            ["PORTFOLIO", "LEADERBOARD"]
         ],
-        "resize_keyboard": True
+        "resize_keyboard": True,
+        "persistent": True
     }
 
     payload = {
-        "chat_id": CHAT_ID,
+        "chat_id": TELEGRAM_CHAT_ID,
         "text": "Quant Ecosystem Control Panel",
         "reply_markup": keyboard
     }
 
-    requests.post(f"{BASE_URL}/sendMessage", json=payload)
+    requests.post(url, json=payload)
 
 
-# Get updates
+# LISTEN FOR COMMANDS
 def get_updates(offset=None):
 
     url = f"{BASE_URL}/getUpdates"
@@ -69,4 +56,4 @@ def get_updates(offset=None):
 
     r = requests.get(url, params=params)
 
-    return r.json().get("result", [])
+    return r.json()
