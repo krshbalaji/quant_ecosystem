@@ -1,86 +1,89 @@
-# core/mobile_command.py
-
 from core.mode_controller import mode_controller
 from infra.telegram_service import send_message
 
 
-def execute_command(cmd: str):
-    """
-    Handles Telegram commands safely.
-    """
+def execute_command(cmd):
 
-    try:
+    cmd = cmd.lower()
 
-        cmd = cmd.strip().lower()
+    if cmd == "/start":
+        send_message(
+            "🏛 Institutional Control Panel Active\n\n"
+            "/status\n"
+            "/mode\n"
+            "/paper\n"
+            "/live\n"
+            "/performance\n"
+            "/strategies\n"
+            "/stop"
+        )
 
-        # STATUS
-        if cmd == "/status":
 
-            mode = mode_controller.get_mode()
+    elif cmd == "/status":
 
-            send_message(
-                f"System operational\n"
-                f"Mode: {mode}\n"
-                f"Guardian: Active\n"
-                f"Engine: Running"
-            )
+        mode = mode_controller.get_mode()
 
-        # DASHBOARD
-        elif cmd == "/dashboard":
+        send_message(
+            f"System Status:\n"
+            f"Mode: {mode}\n"
+            f"Engine: ACTIVE"
+        )
 
-            send_message(
-                "Dashboard ready:\n"
-                "http://127.0.0.1:5000/dashboard"
-            )
 
-        # SWITCH TO LIVE
-        elif cmd == "/live":
+    elif cmd == "/paper":
 
-            mode_controller.set_mode("LIVE")
+        mode_controller.set_mode("PAPER")
 
-            send_message("Switched to LIVE mode")
+        send_message("Switched to PAPER mode")
 
-        # SWITCH TO PAPER
-        elif cmd == "/paper":
 
-            mode_controller.set_mode("PAPER")
+    elif cmd == "/live":
 
-            send_message("Switched to PAPER mode")
+        mode_controller.set_mode("LIVE")
 
-        # LEADERBOARD
-        elif cmd == "/leaderboard":
+        send_message("LIVE mode enabled")
 
-            send_message(
-                "Leaderboard:\n"
-                "http://127.0.0.1:5000/leaderboard"
-            )
 
-        # SPARK ENGINE
-        elif cmd == "/sparks":
+    elif cmd == "/performance":
 
-            send_message(
-                "Spark Engine:\n"
-                "http://127.0.0.1:5000/sparks"
-            )
+        import json
 
-        # PERFORMANCE
-        elif cmd == "/performance":
+        try:
+            with open("data/performance.json") as f:
+                perf = json.load(f)
 
-            send_message(
-                "Performance Dashboard:\n"
-                "http://127.0.0.1:5000/performance"
-            )
+            send_message(str(perf))
 
-        # STOP
-        elif cmd == "/stop":
+        except:
+            send_message("No performance data yet")
 
-            send_message("System stop command acknowledged")
 
-        # UNKNOWN
-        else:
+    elif cmd == "/strategies":
 
-            send_message("Unknown command")
+        import json
 
-    except Exception as e:
+        try:
+            with open("data/elite.json") as f:
+                elite = json.load(f)
 
-        send_message(f"Command error: {str(e)}")
+            msg = "Top Strategies:\n"
+
+            for s in elite[:5]:
+                msg += f"{s.get('name')} score:{s.get('score')}\n"
+
+            send_message(msg)
+
+        except:
+            send_message("No strategies yet")
+
+
+    elif cmd == "/stop":
+
+        mode_controller.set_mode("PAPER")
+
+        send_message("Emergency STOP activated")
+
+
+    else:
+
+        send_message("Unknown command")
