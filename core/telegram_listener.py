@@ -1,6 +1,7 @@
 import time
 
 from infra.telegram_service import get_updates, send_alert, send_menu
+from infra.telegram_service import send_menu
 
 from core.mobile_command import (
     set_mode,
