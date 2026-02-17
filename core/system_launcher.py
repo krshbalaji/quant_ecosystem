@@ -21,6 +21,8 @@ from core.confidence_allocator import ConfidenceAllocator
 from core.growth_optimizer import GrowthOptimizer
 from core.state_manager import StateManager
 from core.autonomous_live_controller import AutonomousLiveController
+from core.escalation_ladder import EscalationLadder
+from core.market_session import MarketSession
 
 
 class SystemLauncher:
@@ -60,6 +62,11 @@ class SystemLauncher:
         self.state = StateManager()
 
         self.live_controller = AutonomousLiveController()
+
+        self.escalation = EscalationLadder()
+
+        self.session = MarketSession()
+
 
     def start(self):
 
@@ -167,6 +174,34 @@ class SystemLauncher:
                 print("AI keeping system in PAPER mode")
 
                 self.mode = "PAPER"
+
+            confidence = self.live_controller.get_confidence()
+
+            drawdown = self.live_controller.get_drawdown()
+
+            capital = self.escalation.get_capital(
+                self.broker,
+                confidence,
+                drawdown
+            )
+
+            session_status = self.session.get_status()
+
+            print("Market session:", session_status)
+
+            if session_status == "OPEN":
+
+                print("Trading session active")
+
+                # existing trading logic here
+
+            else:
+
+                print("Market closed — system in standby mode")
+
+                time.sleep(60)
+
+                return
 
 
     def run_watchdog(self):
