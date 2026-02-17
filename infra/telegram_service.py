@@ -4,34 +4,27 @@ import requests
 import json
 import os
 
-SECRETS_FILE = "infra/secrets.json"
+
+# Load secrets
+BASE_DIR = os.path.dirname(os.path.dirname(__file__))
+SECRETS_PATH = os.path.join(BASE_DIR, "infra", "secrets.json")
+
+with open(SECRETS_PATH, "r") as f:
+    secrets = json.load(f)
+
+TELEGRAM_TOKEN = secrets["TELEGRAM_TOKEN"]
+TELEGRAM_CHAT_ID = secrets["TELEGRAM_CHAT_ID"]
+
+BASE_URL = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}"
 
 
-def load_secrets():
-
-    if not os.path.exists(SECRETS_FILE):
-        print("Telegram secrets.json missing")
-        return None, None
-
-    with open(SECRETS_FILE, "r") as f:
-        data = json.load(f)
-
-    return data.get("TELEGRAM_TOKEN"), data.get("TELEGRAM_CHAT_ID")
-
-
-TOKEN, CHAT_ID = load_secrets()
-
-
+# Send simple message
 def send_message(text):
 
-    if not TOKEN or not CHAT_ID:
-        print("Telegram not configured")
-        return
-
-    url = f"https://api.telegram.org/bot{TOKEN}/sendMessage"
+    url = f"{BASE_URL}/sendMessage"
 
     payload = {
-        "chat_id": CHAT_ID,
+        "chat_id": TELEGRAM_CHAT_ID,
         "text": text
     }
 
@@ -43,51 +36,64 @@ def send_message(text):
         print("Telegram send error:", e)
 
 
+
+# Send alert
+def send_alert(text):
+
+    send_message(f"🚨 ALERT:\n{text}")
+
+
+
+# Send menu with buttons
 def send_menu():
 
-    if not TOKEN or not CHAT_ID:
-        return
-
-    url = f"https://api.telegram.org/bot{TOKEN}/sendMessage"
+    url = f"{BASE_URL}/sendMessage"
 
     keyboard = {
         "keyboard": [
-            ["STATUS", "START LIVE"],
-            ["STOP LIVE", "FORCE PAPER"],
-            ["SHUTDOWN", "RESTART"]
+            ["STATUS", "MODE"],
+            ["START LIVE", "STOP LIVE"],
+            ["POSITIONS", "PERFORMANCE"]
         ],
         "resize_keyboard": True
     }
 
     payload = {
-        "chat_id": CHAT_ID,
-        "text": "Quant Ecosystem Control Panel",
+        "chat_id": TELEGRAM_CHAT_ID,
+        "text": "Quant Ecosystem Command Center",
         "reply_markup": keyboard
     }
 
-    requests.post(url, json=payload)
+    try:
+
+        requests.post(url, json=payload, timeout=10)
+
+        print("Telegram menu sent")
+
+    except Exception as e:
+
+        print("Telegram menu error:", e)
 
 
-def send_alert(text):
-    send_message("🚨 " + text)
 
-
+# Receive updates
 def get_updates(offset=None):
 
-    if not TOKEN:
-        return None
+    url = f"{BASE_URL}/getUpdates"
 
-    url = f"https://api.telegram.org/bot{TOKEN}/getUpdates"
-
-    params = {"timeout": 30}
+    params = {}
 
     if offset:
         params["offset"] = offset
 
     try:
-        r = requests.get(url, params=params, timeout=35)
-        return r.json()
+
+        response = requests.get(url, params=params, timeout=10)
+
+        return response.json()
 
     except Exception as e:
+
         print("Telegram update error:", e)
+
         return None

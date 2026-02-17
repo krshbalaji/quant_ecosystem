@@ -15,36 +15,39 @@ from core.live_control_guard import request, approve
 from infra.telegram_service import send_alert
 
 
-def execute_command(cmd):
+from core.mode_controller import ModeController
 
-    if cmd == "Status":
+mode_controller = ModeController()
 
-        send_alert("System running normally")
 
-    elif cmd == "Equity":
+def execute_command(command):
 
-        send_alert("Equity: ₹8000")
+    command = command.lower()
 
-    elif cmd == "Enable LIVE":
+    if command == "/status":
+        return "System ACTIVE\nMode: " + mode_controller.get_mode()
 
-        send_alert("LIVE mode request received")
+    elif command == "/live_on":
+        mode_controller.enable_live()
+        return "LIVE trading ENABLED"
 
-    elif cmd == "Disable LIVE":
+    elif command == "/live_off":
+        mode_controller.disable_live()
+        return "LIVE trading DISABLED"
 
-        send_alert("LIVE mode disabled")
+    elif command == "/paper_on":
+        mode_controller.enable_paper()
+        return "PAPER mode ENABLED"
 
-    elif cmd == "Pause":
+    elif command == "/capital":
+        return "Capital protection ACTIVE"
 
-        send_alert("Trading paused")
+    elif command == "/shutdown":
+        return "Shutdown request received"
 
-    elif cmd == "Resume":
+    else:
+        return "Unknown command"
 
-        send_alert("Trading resumed")
-
-    elif cmd == "Shutdown":
-
-        send_alert("System shutting down")
-        exit()
 
 def request_live():
 
