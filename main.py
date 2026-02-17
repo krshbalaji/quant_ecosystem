@@ -23,7 +23,7 @@ from engine.portfolio_manager import PortfolioManager
 from core.risk_manager import RiskManager
 from data.downloader import HistoricalDownloader
 from strategies.orb_strategy import ORBStrategy
-
+from dashboard.app import run_dashboard
 
 # ================================
 # THREAD LAUNCHERS

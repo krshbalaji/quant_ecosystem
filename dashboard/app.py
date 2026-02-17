@@ -64,4 +64,45 @@ def realtime_updater():
 
         wins = sum(1 for t in trades if t.get("pnl", 0) > 0)
         dashboard_state["winrate"] = (
-            round(wins
+            round(wins / len(trades) * 100, 2) if trades else 0
+        )
+
+        dashboard_state["pnl"] = sum(t.get("pnl", 0) for t in trades)
+
+        time.sleep(1)
+
+
+# Start realtime thread
+threading.Thread(target=realtime_updater, daemon=True).start()
+
+# ----------------------------------------
+# Routes
+# ----------------------------------------
+
+@app.route("/")
+@app.route("/dashboard")
+def dashboard():
+    return render_template("dashboard.html")
+
+
+@app.route("/api/state")
+def api_state():
+    return jsonify(dashboard_state)
+
+
+@app.route("/leaderboard")
+def leaderboard():
+    return jsonify(dashboard_state["strategies"])
+
+
+@app.route("/sparks")
+def sparks():
+    spark_file = os.path.join(BASE_DIR, "data", "spark_log.json")
+    return jsonify(load_json(spark_file, []))
+
+
+# ----------------------------------------
+
+def run_dashboard():
+    print("🚀 Institutional Dashboard running at http://127.0.0.1:5000")
+    app.run(host="0.0.0.0", port=5000, debug=False, use_reloader=False)

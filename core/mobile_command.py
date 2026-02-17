@@ -87,3 +87,25 @@ def execute_command(cmd):
     else:
 
         send_message("Unknown command")
+
+elif cmd == "/performance":
+    from core.performance_tracker import get_summary
+    send_message(str(get_summary()))
+
+elif cmd == "/equity":
+    from core.performance_tracker import get_equity
+    send_message(f"Equity: ₹{get_equity()}")
+
+elif cmd == "/pnl":
+    from core.performance_tracker import get_pnl
+    send_message(f"PNL: ₹{get_pnl()}")
+
+elif cmd == "/trades":
+    from core.performance_tracker import get_trade_count
+    send_message(f"Trades: {get_trade_count()}")
+
+elif cmd == "/leaderboard":
+    send_message("Dashboard → http://127.0.0.1:5000/leaderboard")
+
+elif cmd == "/sparks":
+    send_message("Spark Engine → http://127.0.0.1:5000/sparks")
