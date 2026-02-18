@@ -1,92 +1,30 @@
 import json
 import os
-from datetime import datetime
+import datetime
 
-METRICS_FILE = "data/live_metrics.json"
+DATA_FILE = "data/telemetry.json"
 
-def update_metrics(data):
+def update_telemetry(strategy_name=None, equity=None, strategy_scores=None):
+
     os.makedirs("data", exist_ok=True)
 
-    try:
-        with open(METRICS_FILE, "r") as f:
-            metrics = json.load(f)
-    except:
-        metrics = {}
+    data = {}
 
-    metrics.update(data)
-    metrics["timestamp"] = datetime.now().isoformat()
+    if os.path.exists(DATA_FILE):
+        with open(DATA_FILE, "r") as f:
+            data = json.load(f)
 
-    with open(METRICS_FILE, "w") as f:
-        json.dump(metrics, f, indent=4)
+    if strategy_name:
+        data["last_strategy"] = strategy_name
 
-def get_metrics():
-    try:
-        with open(METRICS_FILE, "r") as f:
-            return json.load(f)
-    except:
-        return {}
+    if equity:
+        data.setdefault("equity_curve", []).append({
+            "time": datetime.datetime.now().strftime("%H:%M:%S"),
+            "value": equity
+        })
 
-BASE = "data/telemetry"
-PERF = "data/performance"
-RD = "data/rd"
+    if strategy_scores:
+        data["strategy_scores"] = strategy_scores
 
-os.makedirs(BASE, exist_ok=True)
-os.makedirs(PERF, exist_ok=True)
-os.makedirs(RD, exist_ok=True)
-
-
-def write_json(path, data):
-    try:
-        if os.path.exists(path):
-            with open(path, "r") as f:
-                existing = json.load(f)
-        else:
-            existing = []
-
-        existing.append(data)
-
-        with open(path, "w") as f:
-            json.dump(existing, f, indent=4)
-
-    except:
-        pass
-
-
-def record_brain_state(state):
-
-    record = {
-        "timestamp": str(datetime.now()),
-        "state": state
-    }
-
-    write_json(f"{BASE}/brain_state.json", record)
-
-
-def record_trade(trade):
-
-    record = {
-        "timestamp": str(datetime.now()),
-        "trade": trade
-    }
-
-    write_json(f"{PERF}/trade_log.json", record)
-
-
-def record_strategy_evolution(strategy):
-
-    record = {
-        "timestamp": str(datetime.now()),
-        "strategy": strategy
-    }
-
-    write_json(f"{RD}/evolution_history.json", record)
-
-
-def record_system_health(health):
-
-    record = {
-        "timestamp": str(datetime.now()),
-        "health": health
-    }
-
-    write_json(f"{BASE}/system_health.json", record)
+    with open(DATA_FILE, "w") as f:
+        json.dump(data, f, indent=4)

@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Institutional AI Command Center</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            background: #000;
+            color: #00ffcc;
+            font-family: monospace;
+        }
+        .card {
+            border: 1px solid #00ffcc;
+            padding: 20px;
+            margin: 20px;
+        }
+        canvas {
+            background: #111;
+        }
+    </style>
+</head>
+<body>
+
+<h1>🏛 Institutional AI Command Center</h1>
+
+<div class="card">
+    <p>Time: {{ data.time }}</p>
+    <p>Mode: {{ data.mode }}</p>
+    <p>Regime: {{ data.regime }}</p>
+    <p>Equity: ₹{{ data.equity }}</p>
+    <p>PNL: ₹{{ data.pnl }}</p>
+    <p>Trades: {{ data.trades }}</p>
+    <p>Winrate: {{ data.winrate }}%</p>
+    <p>Last Strategy: {{ data.last_strategy }}</p>
+</div>
+
+<div class="card">
+    <h3>Equity Curve</h3>
+    <canvas id="equityChart"></canvas>
+</div>
+
+<script>
+    const equityData = {{ data.equity_curve|tojson }};
+    const labels = equityData.map(e => e.time);
+    const values = equityData.map(e => e.value);
+
+    new Chart(document.getElementById("equityChart"), {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: "Equity",
+                data: values,
+                borderColor: "#00ffcc"
+            }]
+        }
+    });
+</script>
+
+</body>
+</html>
