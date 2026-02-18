@@ -1,60 +1,59 @@
-import json
-import random
-from datetime import datetime
+# core/meta_intelligence.py
 
-class MetaIntelligenceCore:
+import random
+from core.telemetry import record_brain_state
+
+
+class MetaIntelligence:
 
     def __init__(self):
-
-        self.state_file = "data/meta_intelligence_state.json"
-
-        self.state = {
-            "mode": "INSTITUTIONAL",
-            "confidence": 0.5,
-            "regime_prediction": "UNKNOWN",
-            "last_update": str(datetime.now())
-        }
-
-        self.load()
-
         print("Institutional Meta-Intelligence Core Active")
+        self.last_regime = "UNKNOWN"
+        self.last_confidence = 0.0
+        self.last_decision = "PAPER_ONLY"
 
-    def load(self):
+    # Core evaluation engine
+    def evaluate_market(self):
+
+        regimes = ["TRENDING", "SIDEWAYS", "VOLATILE", "LOW_VOL"]
+
+        regime = random.choice(regimes)
+        confidence = round(random.uniform(0.5, 0.95), 2)
+
+        decision = "LIVE_ALLOWED" if confidence > 0.7 else "PAPER_ONLY"
+
+        self.last_regime = regime
+        self.last_confidence = confidence
+        self.last_decision = decision
+
+        print(f"Meta Intelligence Prediction: {regime}")
 
         try:
-            with open(self.state_file, "r") as f:
-                self.state = json.load(f)
+            record_brain_state({
+                "regime": regime,
+                "confidence": confidence,
+                "decision": decision
+            })
         except:
             pass
 
-    def save(self):
+        return {
+            "regime": regime,
+            "confidence": confidence,
+            "decision": decision
+        }
 
-        with open(self.state_file, "w") as f:
-            json.dump(self.state, f, indent=4)
-
+    # 🔁 Legacy compatibility for old launcher
     def predict_regime(self):
-
-        regimes = [
-            "TRENDING",
-            "SIDEWAYS",
-            "VOLATILE",
-            "LOW_VOL"
-        ]
-
-        prediction = random.choice(regimes)
-
-        self.state["regime_prediction"] = prediction
-        self.state["confidence"] = random.uniform(0.6, 0.9)
-        self.state["last_update"] = str(datetime.now())
-
-        self.save()
-
-        return prediction
+        return self.evaluate_market()["regime"]
 
     def should_trade_live(self):
+        result = self.evaluate_market()
+        return result["decision"] == "LIVE_ALLOWED"
 
-        confidence = self.state["confidence"]
+    def get_confidence(self):
+        return self.last_confidence
 
-        return confidence > 0.65
 
-meta_intelligence = MetaIntelligenceCore()
+# Singleton instance
+meta_intelligence = MetaIntelligence()

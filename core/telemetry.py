@@ -26,7 +26,6 @@ def get_metrics():
     except:
         return {}
 
-
 BASE = "data/telemetry"
 PERF = "data/performance"
 RD = "data/rd"

@@ -1,0 +1,58 @@
+[
+    {
+        "timestamp": "2026-02-18 06:27:44.702825",
+        "state": {
+            "regime": "LOW_VOL",
+            "confidence": 0.9,
+            "decision": "LIVE_ALLOWED"
+        }
+    },
+    {
+        "timestamp": "2026-02-18 06:30:20.814472",
+        "state": {
+            "regime": "LOW_VOL",
+            "confidence": 0.72,
+            "decision": "LIVE_ALLOWED"
+        }
+    },
+    {
+        "timestamp": "2026-02-18 06:30:20.824615",
+        "state": {
+            "regime": "TRENDING",
+            "confidence": 0.68,
+            "decision": "PAPER_ONLY"
+        }
+    },
+    {
+        "timestamp": "2026-02-18 06:34:37.830172",
+        "state": {
+            "regime": "TRENDING",
+            "confidence": 0.78,
+            "decision": "LIVE_ALLOWED"
+        }
+    },
+    {
+        "timestamp": "2026-02-18 06:34:37.840370",
+        "state": {
+            "regime": "VOLATILE",
+            "confidence": 0.62,
+            "decision": "PAPER_ONLY"
+        }
+    },
+    {
+        "timestamp": "2026-02-18 06:41:36.519461",
+        "state": {
+            "regime": "SIDEWAYS",
+            "confidence": 0.89,
+            "decision": "LIVE_ALLOWED"
+        }
+    },
+    {
+        "timestamp": "2026-02-18 06:41:36.541380",
+        "state": {
+            "regime": "TRENDING",
+            "confidence": 0.85,
+            "decision": "LIVE_ALLOWED"
+        }
+    }
+]

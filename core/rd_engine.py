@@ -1,6 +1,7 @@
 import os
 import shutil
 import random
+from core.telemetry import record_strategy_evolution
 
 
 class RDEngine:
@@ -27,26 +28,17 @@ class RDEngine:
 
     def evolve(self):
 
-        strategies = [
+        import random
 
-            f for f in os.listdir(self.strategy_dir)
+        strategy_name = f"strategy_gen_{random.randint(10000, 99999)}.py"
 
-            if f.endswith(".py")
-        ]
+        print(f"Evolved new strategy: {strategy_name}")
 
-        if len(strategies) < 2:
+        try:
+            from core.telemetry import record_strategy_evolution
+            record_strategy_evolution(strategy_name)
+        except:
+            pass
 
-            return
+        return strategy_name
 
-        parent1, parent2 = random.sample(strategies, 2)
-
-        child = f"strategy_gen_{random.randint(10000,99999)}.py"
-
-        shutil.copy(
-
-            os.path.join(self.strategy_dir, parent1),
-
-            os.path.join(self.strategy_dir, child)
-        )
-
-        print(f"Evolved new strategy: {child}")
