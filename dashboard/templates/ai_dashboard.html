@@ -39,6 +39,12 @@
     <canvas id="equityChart"></canvas>
 </div>
 
+<div id="ai-panel">
+    <h3>AI Command Center</h3>
+    <p id="ai-regime"></p>
+    <p id="ai-suggestion"></p>
+</div>
+
 <script>
     const equityData = {{ data.equity_curve|tojson }};
     const labels = equityData.map(e => e.time);

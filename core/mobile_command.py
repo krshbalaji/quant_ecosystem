@@ -20,85 +20,46 @@ except:
 # AI Command Center Controller
 # ============================================
 
-def execute_command(cmd):
-
+def execute_command(cmd, chat_id):
     cmd = cmd.strip().lower()
 
-    print(f"Telegram command received: {cmd}")
-
-    # --------------------------------
-    # Core controls
-    # --------------------------------
-
     if cmd == "/start":
+        return "🏛 Institutional Hedge Fund Terminal Ready"
 
-        send_message("🏛 Institutional Quant Ecosystem Online")
-        send_menu()
-
-    elif cmd == "/status":
-
-        mode = get_mode()
-        send_message(f"System active | Mode: {mode}")
-
-    elif cmd == "/dashboard":
-
-        send_message("Dashboard → http://127.0.0.1:5000")
-
-    elif cmd == "/paper":
-
-        set_mode("PAPER")
-        send_message("Switched to PAPER mode")
-
-    elif cmd == "/live":
-
-        set_mode("LIVE")
-        send_message("Switched to LIVE mode")
-
-    elif cmd == "/stop":
-
-        set_mode("PAPER")
-        send_message("System halted (safe mode)")
-
-    # --------------------------------
-    # AI Command Center controls
-    # --------------------------------
-
-    elif cmd == "/performance":
-
-        send_message(str(get_summary()))
+    elif cmd == "/mode":
+        from core.mode_controller import mode_controller
+        return f"Current Mode: {mode_controller.get_mode()}"
 
     elif cmd == "/equity":
+        try:
+            from core.performance_tracker import performance_tracker
+            return f"Equity: ₹{performance_tracker.current_equity}"
+        except:
+            return "Equity data unavailable"
 
-        send_message(f"Equity: ₹{get_equity()}")
+    elif cmd == "/performance":
+        try:
+            from core.performance_tracker import performance_tracker
+            return performance_tracker.summary()
+        except:
+            return "Performance data unavailable"
 
-    elif cmd == "/pnl":
+    elif cmd == "/regime":
+        from core.meta_intelligence import meta_intelligence
+        return f"Market Regime: {meta_intelligence.current_regime}"
 
-        send_message(f"PNL: ₹{get_pnl()}")
+    elif cmd == "/evolve":
+        from core.rd_engine import RDEngine
+        rd = RDEngine()
+        rd.evolve()
+        return "New strategy evolved."
 
-    elif cmd == "/trades":
-
-        send_message(f"Trades: {get_trade_count()}")
-
-    elif cmd == "/leaderboard":
-
-        send_message("Leaderboard → http://127.0.0.1:5000/leaderboard")
-
-    elif cmd == "/sparks":
-
-        send_message("Spark Engine → http://127.0.0.1:5000/sparks")
-
-    elif cmd == "/brain":
-
-        send_message("AI Brain Active | Monitoring Markets")
-
-    elif cmd == "/kill":
-
-        send_message("Emergency stop engaged")
-        set_mode("PAPER")
+    elif cmd == "/status":
+        return "System ACTIVE"
 
     else:
+        return "Unknown command"
 
-        send_message("Unknown command")
 
     MENU = [
     ["/status", "/dashboard"],

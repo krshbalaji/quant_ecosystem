@@ -1,36 +1,55 @@
-import json
-import os
+# core/performance_tracker.py
 
-FILE = "data/strategy_metrics.json"
+import random
 
-def record_strategy(name, pnl, win, loss):
-    os.makedirs("data", exist_ok=True)
+class PerformanceTracker:
 
-    try:
-        with open(FILE, "r") as f:
-            data = json.load(f)
-    except:
-        data = {}
+    def __init__(self):
+        self.equity = 8000
+        self.pnl = 0
+        self.trades = 0
+        self.wins = 0
 
-    if name not in data:
-        data[name] = {
-            "trades": 0,
-            "wins": 0,
-            "loss": 0,
-            "pnl": 0
+    def record_trade(self, profit):
+        self.trades += 1
+        self.pnl += profit
+        self.equity += profit
+        if profit > 0:
+            self.wins += 1
+
+    def get_stats(self):
+        winrate = 0
+        if self.trades > 0:
+            winrate = (self.wins / self.trades) * 100
+
+        return {
+            "equity": self.equity,
+            "pnl": self.pnl,
+            "trades": self.trades,
+            "winrate": round(winrate, 2)
         }
 
-    data[name]["trades"] += 1
-    data[name]["wins"] += win
-    data[name]["loss"] += loss
-    data[name]["pnl"] += pnl
+performance_data = {
+    "equity": 8000,
+    "pnl": 0,
+    "trades": 0,
+    "winrate": 0
+}
 
-    with open(FILE, "w") as f:
-        json.dump(data, f, indent=4)
 
-def get_all():
-    try:
-        with open(FILE) as f:
-            return json.load(f)
-    except:
-        return {}
+def update_performance(equity=None, pnl=None, trades=None, winrate=None):
+    if equity is not None:
+        performance_data["equity"] = equity
+    if pnl is not None:
+        performance_data["pnl"] = pnl
+    if trades is not None:
+        performance_data["trades"] = trades
+    if winrate is not None:
+        performance_data["winrate"] = winrate
+
+
+def get_performance_snapshot():
+    return performance_data
+
+# GLOBAL INSTANCE (THIS WAS MISSING)
+performance_tracker = PerformanceTracker()

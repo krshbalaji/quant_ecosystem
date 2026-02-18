@@ -1,53 +1,70 @@
-# dashboard/app.py
+from flask import Flask, jsonify, render_template
+import threading
+import time
 
-from flask import Flask, render_template, jsonify
-import datetime
-import os
-import json
-
-from core.mode_controller import mode_controller
+from core.mode_controller import get_mode
 from core.meta_intelligence import meta_intelligence
-from core.performance_tracker import performance_tracker
+from core.performance_tracker import get_performance_snapshot
 
 app = Flask(__name__)
 
-DATA_FILE = "data/telemetry.json"
+
+# ---------------------------
+# LIVE STATE ENDPOINT
+# ---------------------------
+@app.route("/api/state")
+def api_state():
+    try:
+        from core.performance_tracker import performance_tracker
+        from core.meta_intelligence import meta_intelligence
+
+        snapshot = performance_tracker.get_snapshot()
+
+        return jsonify({
+            "mode": snapshot.get("mode", "PAPER"),
+            "equity": snapshot.get("equity", 8000),
+            "pnl": snapshot.get("pnl", 0),
+            "trades": snapshot.get("trades", 0),
+            "winrate": snapshot.get("winrate", 0),
+            "regime": getattr(meta_intelligence, "current_regime", "UNKNOWN")
+        })
+
+    except Exception as e:
+        print("API STATE ERROR:", e)
+        return jsonify({
+            "mode": "ERROR",
+            "equity": 0,
+            "pnl": 0,
+            "trades": 0,
+            "winrate": 0,
+            "regime": "ERROR"
+        })
 
 
-def load_telemetry():
-    if os.path.exists(DATA_FILE):
-        with open(DATA_FILE, "r") as f:
-            return json.load(f)
-    return {}
-
-
+# ---------------------------
+# DASHBOARD PAGE
+# ---------------------------
 @app.route("/")
 @app.route("/dashboard")
 def dashboard():
-
-    telemetry = load_telemetry()
-
-    data = {
-        "time": datetime.datetime.now().strftime("%H:%M:%S"),
-        "mode": mode_controller.get_mode(),
-        "equity": performance_tracker.get_equity(),
-        "pnl": performance_tracker.get_pnl(),
-        "trades": performance_tracker.get_trade_count(),
-        "winrate": performance_tracker.get_winrate(),
-        "regime": meta_intelligence.predict_regime(),
-        "last_strategy": telemetry.get("last_strategy", "None"),
-        "equity_curve": telemetry.get("equity_curve", []),
-        "strategy_scores": telemetry.get("strategy_scores", {})
-    }
-
-    return render_template("ai_dashboard.html", data=data)
+    return render_template("dashboard.html")
 
 
-@app.route("/api/live")
-def live_data():
-    return jsonify(load_telemetry())
-
-
+# ---------------------------
+# RUN FUNCTION
+# ---------------------------
 def run_dashboard():
-    print("🚀 Institutional Dashboard running at http://127.0.0.1:5000")
-    app.run(host="0.0.0.0", port=5000, debug=False)
+    app.run(host="0.0.0.0", port=5000, debug=True)
+
+from core.telemetry import get_leaderboard
+
+@app.route("/api/leaderboard")
+def api_leaderboard():
+    return jsonify(get_leaderboard())
+
+@app.route("/api/ai")
+def api_ai():
+    return jsonify({
+        "regime": meta_intelligence.current_regime,
+        "suggestion": "Reduce exposure" if meta_intelligence.current_regime == "VOLATILE" else "Increase allocation"
+    })

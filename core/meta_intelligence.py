@@ -1,60 +1,20 @@
 # core/meta_intelligence.py
 
 import random
-from core.telemetry import record_brain_state
-
 
 class MetaIntelligence:
 
     def __init__(self):
         print("Institutional Meta-Intelligence Core Active")
-        self.last_regime = "UNKNOWN"
-        self.last_confidence = 0.0
-        self.last_decision = "PAPER_ONLY"
+        self.current_regime = "UNKNOWN"
 
-    # Core evaluation engine
-    def evaluate_market(self):
-
-        regimes = ["TRENDING", "SIDEWAYS", "VOLATILE", "LOW_VOL"]
-
-        regime = random.choice(regimes)
-        confidence = round(random.uniform(0.5, 0.95), 2)
-
-        decision = "LIVE_ALLOWED" if confidence > 0.7 else "PAPER_ONLY"
-
-        self.last_regime = regime
-        self.last_confidence = confidence
-        self.last_decision = decision
-
-        print(f"Meta Intelligence Prediction: {regime}")
-
-        try:
-            record_brain_state({
-                "regime": regime,
-                "confidence": confidence,
-                "decision": decision
-            })
-        except:
-            pass
-
-        return {
-            "regime": regime,
-            "confidence": confidence,
-            "decision": decision
-        }
-
-    # 🔁 Legacy compatibility for old launcher
     def predict_regime(self):
-        # volatility + momentum scoring
-        return random.choice(["TRENDING","VOLATILE","SIDEWAYS","LOW_VOL"])
+        regime = random.choice(["TRENDING", "SIDEWAYS", "VOLATILE", "LOW_VOL"])
+        print(f"Meta Intelligence Prediction: {regime}")
+        return regime
+        self.current_regime = regime
 
     def should_trade_live(self):
-        regime = self.predict_regime()
-        return regime in ["TRENDING","VOLATILE"]
-    
-    def get_confidence(self):
-        return self.last_confidence
+        return self.predict_regime() == "TRENDING"
 
-
-# Singleton instance
 meta_intelligence = MetaIntelligence()
