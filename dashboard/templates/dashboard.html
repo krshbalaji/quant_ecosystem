@@ -66,3 +66,20 @@ setInterval(fetchState, 2000);
 
 </body>
 </html>
+
+<div class="card">
+    <h3>AI Command Console</h3>
+    <input type="text" id="cmd" placeholder="Ask AI..." style="width:80%">
+    <button onclick="sendCommand()">Send</button>
+    <pre id="response"></pre>
+</div>
+
+<script>
+function sendCommand() {
+    fetch("/api/ai?cmd=" + document.getElementById("cmd").value)
+    .then(res => res.text())
+    .then(data => {
+        document.getElementById("response").innerText = data;
+    });
+}
+</script>

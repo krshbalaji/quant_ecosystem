@@ -35,6 +35,10 @@ update_state(
     mode=enforce_mode()
 )
 
+FAST_BOOT = True
+if not FAST_BOOT:
+    rd.evolve()
+
 # ================================
 # THREAD LAUNCHERS
 # ================================

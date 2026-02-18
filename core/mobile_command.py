@@ -99,3 +99,11 @@ def execute_command(cmd):
     else:
 
         send_message("Unknown command")
+
+    MENU = [
+    ["/status", "/dashboard"],
+    ["/paper", "/live"],
+    ["/performance", "/regime"],
+    ["/leaderboard", "/telemetry"],
+    ["/stop"]
+]
