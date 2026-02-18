@@ -18,12 +18,22 @@ from core.telegram_listener import listen as telegram_listen
 
 from tools.morning_health import run_health_check
 from core.maintenance import run_daily, should_run
-
+from core.meta_intelligence import MetaIntelligence
 from engine.portfolio_manager import PortfolioManager
 from core.risk_manager import RiskManager
 from data.downloader import HistoricalDownloader
 from strategies.orb_strategy import ORBStrategy
 from dashboard.app import run_dashboard
+from core.live_state import update_state
+
+meta_intelligence = MetaIntelligence()
+
+regime = meta_intelligence.predict_regime()
+
+update_state(
+    regime=regime,
+    mode=enforce_mode()
+)
 
 # ================================
 # THREAD LAUNCHERS
@@ -120,7 +130,15 @@ def main():
         run_daily()
 
     rd = RDEngine()
-    rd.evolve()
+
+    import threading
+
+    def background_ai():
+        rd.evolve()
+        start_autonomous_engine()
+
+    threading.Thread(target=background_ai, daemon=True).start()
+
 
     # THREADS
 

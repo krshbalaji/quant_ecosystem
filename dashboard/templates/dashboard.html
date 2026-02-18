@@ -1,133 +1,67 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Institutional Quant Dashboard</title>
-
+<title>Institutional AI Command Center</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
 <style>
 body {
-background: black;
-color: #00ffcc;
-font-family: Consolas;
+    background: #0f1117;
+    color: #00ffcc;
+    font-family: monospace;
 }
-
-.container {
-width: 95%;
-margin: auto;
+.panel {
+    border: 1px solid #00ffcc;
+    padding: 15px;
+    margin: 10px;
 }
-
-.card {
-border: 1px solid #00ffcc;
-padding: 15px;
-margin: 10px;
-}
-
-.grid {
-display: grid;
-grid-template-columns: 1fr 1fr;
-}
-
 </style>
 </head>
-
 <body>
 
-<div class="container">
+<h1>🏛 Institutional AI Command Center</h1>
 
-<h1>🏛 Institutional Control Dashboard</h1>
-
-<div class="grid">
-
-<div class="card">
-Mode: <span id="mode"></span><br>
-Equity: ₹<span id="equity"></span><br>
-PNL: ₹<span id="pnl"></span><br>
-Trades: <span id="trades"></span><br>
-Winrate: <span id="winrate"></span>%<br>
-Strategy: <span id="strategy"></span><br>
+<div class="panel">
+    <h3>Equity: ₹<span id="equity"></span></h3>
+    <h3>Regime: <span id="regime"></span></h3>
+    <h3>Mode: <span id="mode"></span></h3>
+    <h3>Last Strategy: <span id="strategy"></span></h3>
 </div>
 
-<div class="card">
-<canvas id="equityChart"></canvas>
-</div>
-
-<div class="card">
-<canvas id="pnlChart"></canvas>
-</div>
-
-<div class="card">
-<h3>Strategy Leaderboard</h3>
-<div id="leaderboard"></div>
-</div>
-
-</div>
-
+<div class="panel">
+    <canvas id="equityChart"></canvas>
 </div>
 
 <script>
+let equityData = [];
 
-let equityChart = new Chart(
-document.getElementById("equityChart"),
-{
-type: "line",
-data: {
-labels: [],
-datasets: [{
-label: "Equity",
-data: [],
-borderColor: "#00ffcc"
-}]
-}
-}
-)
+function fetchState() {
+    fetch('/api/state')
+    .then(res => res.json())
+    .then(data => {
+        document.getElementById("equity").innerText = data.equity;
+        document.getElementById("regime").innerText = data.regime;
+        document.getElementById("mode").innerText = data.mode;
+        document.getElementById("strategy").innerText = data.last_strategy;
 
-let pnlChart = new Chart(
-document.getElementById("pnlChart"),
-{
-type: "line",
-data: {
-labels: [],
-datasets: [{
-label: "PNL",
-data: [],
-borderColor: "#ffaa00"
-}]
-}
-}
-)
-
-async function updateDashboard(){
-
-let res = await fetch("/api/state")
-let data = await res.json()
-
-document.getElementById("mode").innerText = data.mode
-document.getElementById("equity").innerText = data.equity
-document.getElementById("pnl").innerText = data.pnl
-document.getElementById("trades").innerText = data.trades
-document.getElementById("winrate").innerText = data.winrate
-document.getElementById("strategy").innerText = data.active_strategy
-
-equityChart.data.labels = data.equity_curve.map((_,i)=>i)
-equityChart.data.datasets[0].data = data.equity_curve
-equityChart.update()
-
-pnlChart.data.labels = data.pnl_curve.map((_,i)=>i)
-pnlChart.data.datasets[0].data = data.pnl_curve
-pnlChart.update()
-
-let board = document.getElementById("leaderboard")
-board.innerHTML=""
-
-for (let s in data.strategies){
-board.innerHTML += s + " : " + data.strategies[s] + "<br>"
+        equityData.push(data.equity);
+        chart.update();
+    });
 }
 
-}
+const ctx = document.getElementById('equityChart');
+const chart = new Chart(ctx, {
+    type: 'line',
+    data: {
+        labels: [],
+        datasets: [{
+            label: 'Equity Curve',
+            data: equityData,
+            borderColor: '#00ffcc'
+        }]
+    }
+});
 
-setInterval(updateDashboard,1000)
-
+setInterval(fetchState, 2000);
 </script>
 
 </body>

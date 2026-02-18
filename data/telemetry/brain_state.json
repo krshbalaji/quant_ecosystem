@@ -54,5 +54,21 @@
             "confidence": 0.85,
             "decision": "LIVE_ALLOWED"
         }
+    },
+    {
+        "timestamp": "2026-02-18 06:51:36.460544",
+        "state": {
+            "regime": "TRENDING",
+            "confidence": 0.82,
+            "decision": "LIVE_ALLOWED"
+        }
+    },
+    {
+        "timestamp": "2026-02-18 06:51:36.473282",
+        "state": {
+            "regime": "VOLATILE",
+            "confidence": 0.7,
+            "decision": "PAPER_ONLY"
+        }
     }
 ]
