@@ -1,5 +1,5 @@
 .env
 secrets.json
-infra/secrets.py
 __pycache__/
 *.pyc
+data/*.json

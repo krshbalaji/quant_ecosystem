@@ -1,95 +1,65 @@
-import json
-import requests
 import os
+import requests
 import threading
 import time
-import random
+from dotenv import load_dotenv
 
-from infra.secrets import TELEGRAM_TOKEN, TELEGRAM_CHAT_ID
+# Load environment variables
+load_dotenv()
+
+TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
+TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
 
 BASE_URL = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}"
-LAST_UPDATE_ID = None
 
-
-SECRETS_FILE = os.path.join(os.path.dirname(__file__), "secrets.json")
-
-def load_secrets():
-    with open(SECRETS_FILE, "r") as f:
-        return json.load(f)
-
-SECRETS = load_secrets()
-
-TOKEN = SECRETS["TELEGRAM_TOKEN"]
-CHAT_ID = str(SECRETS["TELEGRAM_CHAT_ID"])
-
-BASE_URL = f"https://api.telegram.org/bot{TOKEN}"
+last_update_id = None
 
 
 def send_message(text):
     url = f"{BASE_URL}/sendMessage"
-   
-
     payload = {
-        "chat_id": CHAT_ID,
-        "text": text,
-        "parse_mode": "HTML"
+        "chat_id": TELEGRAM_CHAT_ID,
+        "text": text
     }
-
     try:
-        requests.post(url, json=payload, timeout=10)
+        requests.post(url, json=payload)
         print("Telegram message sent")
     except Exception as e:
         print("Telegram send error:", e)
 
 
 def send_menu():
-    url = f"{BASE_URL}/sendMessage"
-
     keyboard = {
         "keyboard": [
-            ["/status", "/dashboard"],
-            ["/paper", "/live"],
-            ["/leaderboard", "/sparks"],
-            ["/stop"]
+            ["/status", "/equity"],
+            ["/mode", "/performance"],
+            ["/leaderboard", "/sparks"]
         ],
         "resize_keyboard": True
     }
 
+    url = f"{BASE_URL}/sendMessage"
     payload = {
-        "chat_id": CHAT_ID,
-        "text": "Institutional Control Panel",
+        "chat_id": TELEGRAM_CHAT_ID,
+        "text": "🏛 Institutional Control Panel",
         "reply_markup": keyboard
     }
 
-    try:
-        requests.post(url, json=payload, timeout=10)
-        print("Telegram menu sent")
-    except Exception as e:
-        print("Telegram menu error:", e)
+    requests.post(url, json=payload)
+    print("Telegram menu sent")
 
 
 def get_updates(offset=None):
     url = f"{BASE_URL}/getUpdates"
-
-    params = {"timeout": 10}
-
+    params = {"timeout": 30}
+    
     if offset:
         params["offset"] = offset
 
-    try:
-        response = requests.get(url, params=params, timeout=15)
-        return response.json()
-    except:
-        return None
+    response = requests.get(url, params=params)
+    return response.json()
 
-def token_refresh_loop():
-
-    while True:
-
-        wait = random.randint(1800, 3600)  # 30–60 min
-
-        print("Refreshing Telegram security session")
-
-        time.sleep(wait)
-
-threading.Thread(target=token_refresh_loop, daemon=True).start()
+    if data["ok"]:
+        for update in data["result"]:
+            last_update_id = update["update_id"] + 1
+            yield update
