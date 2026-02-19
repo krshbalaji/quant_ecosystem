@@ -1,70 +1,63 @@
-from infra.telegram_service import send_message, send_menu
+# core/mobile_command.py
+
 from core.mode_controller import set_mode, get_mode
 
-# Optional performance imports
-try:
-    from core.performance_tracker import (
-        get_summary,
-        get_equity,
-        get_pnl,
-        get_trade_count,
-    )
-except:
-    def get_summary(): return "Performance unavailable"
-    def get_equity(): return 0
-    def get_pnl(): return 0
-    def get_trade_count(): return 0
+
+def init():
+    print("Mobile command interface initialized")
 
 
-# ============================================
-# AI Command Center Controller
-# ============================================
+def execute_command(command: str):
 
-def execute_command(cmd, chat_id):
-    cmd = cmd.strip().lower()
+    command = command.lower().strip()
 
-    if cmd == "/start":
-        return "🏛 Institutional Hedge Fund Terminal Ready"
+    if command == "/paper":
+        set_mode("PAPER")
+        return "Switched to PAPER mode"
 
-    elif cmd == "/mode":
-        from core.mode_controller import mode_controller
-        return f"Current Mode: {mode_controller.get_mode()}"
+    elif command == "/live":
+        set_mode("LIVE")
+        return "Switched to LIVE mode"
 
-    elif cmd == "/equity":
-        try:
-            from core.performance_tracker import performance_tracker
-            return f"Equity: ₹{performance_tracker.current_equity}"
-        except:
-            return "Equity data unavailable"
+    elif command == "/backtest":
+        set_mode("BACKTEST")
+        return "Switched to BACKTEST mode"
 
-    elif cmd == "/performance":
-        try:
-            from core.performance_tracker import performance_tracker
-            return performance_tracker.summary()
-        except:
-            return "Performance data unavailable"
+    elif command == "/mode":
+        return f"Current mode: {get_mode()}"
 
-    elif cmd == "/regime":
-        from core.meta_intelligence import meta_intelligence
-        return f"Market Regime: {meta_intelligence.current_regime}"
+    elif command == "/status":
+        return "System operational"
 
-    elif cmd == "/evolve":
-        from core.rd_engine import RDEngine
-        rd = RDEngine()
-        rd.evolve()
-        return "New strategy evolved."
+    elif command == "/dashboard":
+        return "Dashboard: http://127.0.0.1:5000"
 
-    elif cmd == "/status":
-        return "System ACTIVE"
+    elif cmd == "/brain":
+        from core.hedge_allocator import HedgeAllocator
+        allocator = HedgeAllocator()
+        ranking = allocator.rank_strategies()
+        return str(ranking[:5])
 
-    else:
-        return "Unknown command"
+    elif cmd.startswith("/manual"):
+        parts = cmd.split()
+        if len(parts) > 1:
+            control_state.set_manual(parts[1])
+            return f"Manual mode enabled → {parts[1]}"
+
+    elif cmd == "/auto":
+        control_state.set_auto()
+        return "Returned to FULL AUTONOMOUS mode"
 
 
-    MENU = [
-    ["/status", "/dashboard"],
-    ["/paper", "/live"],
-    ["/performance", "/regime"],
-    ["/leaderboard", "/telemetry"],
-    ["/stop"]
-]
+    elif command == "/help":
+        return (
+            "Commands:\n"
+            "/paper\n"
+            "/live\n"
+            "/backtest\n"
+            "/mode\n"
+            "/status\n"
+            "/dashboard"
+        )
+
+    return "Unknown command"

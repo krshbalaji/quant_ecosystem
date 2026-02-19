@@ -89,3 +89,16 @@ def enforce_mode():
     print(f"Mode enforcement active → {current}")
 
     return current
+
+override_mode = False
+
+def enable_override():
+    global override_mode
+    override_mode = True
+
+def disable_override():
+    global override_mode
+    override_mode = False
+
+def is_override():
+    return override_mode

@@ -1,11 +1,13 @@
 # main.py
 import signal
 import sys
+import time
+import threading
+import os
 from core.rd_engine import RDEngine
 from core.mode_controller import mode_controller
 from core.meta_intelligence import meta_intelligence
 from dashboard.app import app
-import threading
 from core.telegram_listener import listen as telegram_listener
 
 
@@ -42,23 +44,34 @@ def main():
 from dashboard.app import app
 print("🚀 Institutional Dashboard running at http://127.0.0.1:5000")
 
-import time
 
 def scheduler_loop():
-    print("⏱ Scheduler Engine Active")
+    strategy_folder = "strategies/frozen"
 
     while True:
         try:
-            from core.meta_intelligence import meta_intelligence
-
             regime = meta_intelligence.predict_regime()
             print(f"Scheduler Check → Regime: {regime}")
 
-            time.sleep(30)  # check every 30 seconds
+            if not os.path.exists(strategy_folder):
+                time.sleep(5)
+                continue
+
+            for file in os.listdir(strategy_folder):
+                if file.endswith(".py"):
+                    print(f"Running: {file}")
+
+            time.sleep(10)
 
         except Exception as e:
             print("Scheduler error:", e)
-            time.sleep(30)
+            time.sleep(5)
+
       
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except KeyboardInterrupt:
+        print("Graceful shutdown initiated")
+        sys.exit(0)
+

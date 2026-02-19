@@ -1,55 +1,36 @@
-# core/performance_tracker.py
-
-import random
+import time
+import threading
 
 class PerformanceTracker:
 
     def __init__(self):
         self.equity = 8000
-        self.pnl = 0
-        self.trades = 0
-        self.wins = 0
+        self.history = []
+        self.lock = threading.Lock()
 
-    def record_trade(self, profit):
-        self.trades += 1
-        self.pnl += profit
-        self.equity += profit
-        if profit > 0:
-            self.wins += 1
+        threading.Thread(target=self._loop, daemon=True).start()
 
-    def get_stats(self):
-        winrate = 0
-        if self.trades > 0:
-            winrate = (self.wins / self.trades) * 100
+    def _loop(self):
+        while True:
+            with self.lock:
+                self.history.append({
+                    "timestamp": time.time(),
+                    "equity": self.equity
+                })
+            time.sleep(10)
 
-        return {
-            "equity": self.equity,
-            "pnl": self.pnl,
-            "trades": self.trades,
-            "winrate": round(winrate, 2)
-        }
+    def update_equity(self, new_equity):
+        with self.lock:
+            self.equity = new_equity
 
-performance_data = {
-    "equity": 8000,
-    "pnl": 0,
-    "trades": 0,
-    "winrate": 0
-}
+    def get_snapshot(self):
+        with self.lock:
+            return {
+                "equity": self.equity,
+                "history": self.history[-100:]
+            }
 
-
-def update_performance(equity=None, pnl=None, trades=None, winrate=None):
-    if equity is not None:
-        performance_data["equity"] = equity
-    if pnl is not None:
-        performance_data["pnl"] = pnl
-    if trades is not None:
-        performance_data["trades"] = trades
-    if winrate is not None:
-        performance_data["winrate"] = winrate
-
+performance_tracker = PerformanceTracker()
 
 def get_performance_snapshot():
-    return performance_data
-
-# GLOBAL INSTANCE (THIS WAS MISSING)
-performance_tracker = PerformanceTracker()
+    return performance_tracker.get_snapshot()

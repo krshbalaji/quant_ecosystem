@@ -20,14 +20,7 @@ def api_state():
 
         snapshot = performance_tracker.get_snapshot()
 
-        return jsonify({
-            "mode": snapshot.get("mode", "PAPER"),
-            "equity": snapshot.get("equity", 8000),
-            "pnl": snapshot.get("pnl", 0),
-            "trades": snapshot.get("trades", 0),
-            "winrate": snapshot.get("winrate", 0),
-            "regime": getattr(meta_intelligence, "current_regime", "UNKNOWN")
-        })
+        return jsonify(get_performance_snapshot())
 
     except Exception as e:
         print("API STATE ERROR:", e)
@@ -54,13 +47,18 @@ def dashboard():
 # RUN FUNCTION
 # ---------------------------
 def run_dashboard():
-    app.run(host="0.0.0.0", port=5000, debug=True)
+    app.run(host="0.0.0.0", port=5000, debug=False)
 
 from core.telemetry import get_leaderboard
 
 @app.route("/api/leaderboard")
 def api_leaderboard():
     return jsonify(get_leaderboard())
+
+def leaderboard():
+    from core.hedge_allocator import HedgeAllocator
+    allocator = HedgeAllocator()
+    return {"ranking": allocator.rank_strategies()}
 
 @app.route("/api/ai")
 def api_ai():
