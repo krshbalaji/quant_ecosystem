@@ -1,21 +1,52 @@
 import time
-from infra.telegram_service import get_updates, send_message, send_menu
-from core.mobile_command import execute_command
+from infra.telegram_service import get_updates, send_inline_menu
+from core.command_router import handle_callback
 
 LAST_UPDATE_ID = None
 
+
 def listen():
     global LAST_UPDATE_ID
-    print("Telegram listener active")
+
+    print("📡 Telegram Inline Control Layer Active")
 
     while True:
-        data = get_updates(LAST_UPDATE_ID)
+        try:
+            data = get_updates(LAST_UPDATE_ID)
 
-        if "result" in data:
+            if not data or "result" not in data:
+                time.sleep(2)
+                continue
+
             for update in data["result"]:
                 LAST_UPDATE_ID = update["update_id"] + 1
 
+                # ---- CALLBACK BUTTONS ----
+                if "callback_query" in update:
+                    callback = update["callback_query"]
+                    chat_id = callback["message"]["chat"]["id"]
+                    data_value = callback["data"]
+
+                    handle_callback(data_value, chat_id)
+                    continue
+
+                # ---- NORMAL MESSAGES ----
                 if "message" in update:
-                    chat_id = update["message"]["chat"]["id"]
-                    text = update["message"].get("text", "")
-                    execute_command(text, chat_id)
+                    message = update["message"]
+                    chat_id = message["chat"]["id"]
+                    text = message.get("text")
+                    print("MESSAGE RECEIVED:", text)
+
+                    if text == "/start":
+                        from infra.telegram_service import send_launcher
+                        send_launcher(chat_id)
+
+                    elif text and "Open Trading Console" in text:
+                        from core.command_router import open_dashboard
+                        open_dashboard(chat_id)
+                                                
+
+        except Exception as e:
+            print("Telegram listener error:", e)
+
+        time.sleep(0.3)
