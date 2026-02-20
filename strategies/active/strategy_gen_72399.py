@@ -12,7 +12,7 @@ class AssimilatedStrategy:
 
         rsi = talib.RSI(close)
 
-        if rsi.iloc[-1] < 30:
+        if rsi.iloc[-1] < 50:
             return "BUY"
 
         elif rsi.iloc[-1] > 70:

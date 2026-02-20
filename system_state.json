@@ -1,0 +1,9 @@
+{
+    "mode": "PAPER",
+    "risk_enabled": true,
+    "autonomous": true,
+    "capital_allocation": 50,
+    "capital": 50,
+    "last_regime": "VOLATILE",
+    "drawdown_today": 0.0
+}

@@ -34,3 +34,81 @@ class StateEngine:
             }
 
 state_engine = StateEngine()
+
+import json
+import sqlite3
+import os
+import threading
+import time
+
+STATE_FILE = "system_state.json"
+DB_FILE = "system_history.db"
+
+_lock = threading.Lock()
+
+
+class StateEngine:
+    def __init__(self):
+        self.state = {
+            "mode": "PAPER",
+            "risk_enabled": True,
+            "autonomous": False,
+            "capital_allocation": 50,
+            "capital": 50,   # 🔥 add this line
+            "last_regime": "UNKNOWN",
+            "drawdown_today": 0.0,
+        }
+
+        self._init_db()
+        self.load_state()
+        self._auto_save()
+
+    # -------------------
+    # JSON STATE
+    # -------------------
+
+    def load_state(self):
+        if os.path.exists(STATE_FILE):
+            with open(STATE_FILE, "r") as f:
+                self.state.update(json.load(f))
+
+    def save_state(self):
+        with _lock:
+            with open(STATE_FILE, "w") as f:
+                json.dump(self.state, f, indent=4)
+
+    def _auto_save(self):
+        def loop():
+            while True:
+                time.sleep(60)
+                self.save_state()
+
+        threading.Thread(target=loop, daemon=True).start()
+
+    # -------------------
+    # SQLITE LOGGING
+    # -------------------
+
+    def _init_db(self):
+        conn = sqlite3.connect(DB_FILE)
+        c = conn.cursor()
+
+        c.execute("""
+        CREATE TABLE IF NOT EXISTS regime_history (
+            timestamp TEXT,
+            regime TEXT
+        )
+        """)
+
+        conn.commit()
+        conn.close()
+
+    def log_regime(self, regime):
+        conn = sqlite3.connect(DB_FILE)
+        c = conn.cursor()
+        c.execute("INSERT INTO regime_history VALUES (datetime('now'), ?)", (regime,))
+        conn.commit()
+        conn.close()
+
+
+state_engine = StateEngine()
